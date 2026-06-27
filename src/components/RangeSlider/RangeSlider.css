@@ -5,7 +5,6 @@
   user-select: none;
 }
 
-/* value bubbles */
 .rs-values {
   display: flex;
   align-items: center;
@@ -13,27 +12,26 @@
 }
 
 .rs-value {
-  background: #0f172a;
-  border: 1px solid #334155;
-  border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 0.82rem;
-  color: #f1f5f9;
-  font-weight: 500;
+  background: var(--bg-input);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-sm);
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  font-weight: 600;
   flex: 1;
   text-align: center;
 }
 
 .rs-dash {
-  color: #475569;
+  color: var(--text-muted);
   font-size: 0.85rem;
   flex-shrink: 0;
 }
 
-/* track */
 .rs-track {
   position: relative;
-  height: 28px;          /* tall hit target */
+  height: 28px;
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -43,27 +41,26 @@
   position: absolute;
   left: 0;
   right: 0;
-  height: 5px;
-  background: #334155;
+  height: 4px;
+  background: var(--bg-raised);
   border-radius: 4px;
 }
 
 .rs-track-fill {
   position: absolute;
-  height: 5px;
-  background: #2563eb;
+  height: 4px;
+  background: var(--accent);
   border-radius: 4px;
   pointer-events: none;
 }
 
-/* thumbs */
 .rs-thumb {
   position: absolute;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: #fff;
-  border: 2.5px solid #2563eb;
+  border: 2px solid var(--accent);
   box-shadow: 0 1px 4px rgba(0,0,0,0.35);
   transform: translateX(-50%);
   cursor: grab;
@@ -73,23 +70,22 @@
 
 .rs-thumb:active {
   cursor: grabbing;
-  box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 0 0 4px var(--accent-dim);
   transform: translateX(-50%) scale(1.15);
 }
 
 .rs-thumb:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 0 0 4px var(--accent-dim);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .rs-thumb { transition: none; }
 }
 
-/* min / max labels */
 .rs-minmax {
   display: flex;
   justify-content: space-between;
-  font-size: 0.7rem;
-  color: #475569;
+  font-size: 0.68rem;
+  color: var(--text-muted);
 }

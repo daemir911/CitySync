@@ -1,5 +1,48 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@700;800&display=swap');
 
+/* ── Design tokens ─────────────────────────────────────────────────────── */
+:root {
+  /* Base palette — warm near-black, not cold slate */
+  --bg:          #0d1117;
+  --bg-card:     #161b22;
+  --bg-raised:   #1c2330;
+  --bg-input:    #0d1117;
+
+  /* Borders */
+  --border:      #21262d;
+  --border-soft: #30363d;
+
+  /* Text */
+  --text-primary:   #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted:     #484f58;
+
+  /* Accent — saffron/amber for India warmth */
+  --accent:      #f0883e;
+  --accent-dim:  rgba(240, 136, 62, 0.12);
+  --accent-border: rgba(240, 136, 62, 0.35);
+
+  /* Blue — interactive only */
+  --blue:        #2f81f7;
+  --blue-dim:    rgba(47, 129, 247, 0.12);
+  --blue-dark:   #1f6feb;
+
+  /* Semantic */
+  --green:  #3fb950;
+  --amber:  #d29922;
+  --red:    #f85149;
+
+  /* Radius */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+
+  /* Shadow */
+  --shadow-card: 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.3);
+}
+
+/* ── Reset ──────────────────────────────────────────────────────────────── */
 *, *::before, *::after {
   margin: 0;
   padding: 0;
@@ -7,14 +50,19 @@
 }
 
 body {
-  font-family: 'Poppins', system-ui, sans-serif;
-  background: #0f172a;
-  color: #f1f5f9;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
 }
 
-/* Override index.css default that constrains width */
+/* Display font for headings */
+h1, h2, h3 {
+  font-family: 'Syne', 'Inter', sans-serif;
+}
+
 #root {
   width: 100%;
   max-width: 100%;
@@ -38,14 +86,12 @@ input, select, textarea {
   font-family: inherit;
 }
 
-/* Keyboard focus ring — accessibility */
 :focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-/* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -53,17 +99,17 @@ input, select, textarea {
   }
 }
 
-/* Shared back link used across Compare, Saved, etc. */
+/* ── Shared utilities ───────────────────────────────────────────────────── */
 .page-back-link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #60a5fa;
-  font-size: 0.88rem;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
   margin-bottom: 20px;
   transition: color 0.15s;
 }
 
 .page-back-link:hover {
-  color: #93c5fd;
+  color: var(--text-primary);
 }

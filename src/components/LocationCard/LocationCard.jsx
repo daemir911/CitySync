@@ -68,8 +68,10 @@ function LocationCard({ location, matchScore }) {
 
   const scoreReason = buildScoreReason(location, matchScore);
 
+  const scoreClass = numericScore === null ? "" : numericScore >= 80 ? "score-high" : numericScore >= 60 ? "score-mid" : "score-low";
+
   return (
-    <div className="location-card">
+    <div className={`location-card ${scoreClass}`}>
       <div className="card-top">
         <div className="card-title-block">
           <h2 className="card-name">{location.name}</h2>
