@@ -13,6 +13,7 @@ import { Radar } from "react-chartjs-2";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import MapModal from "../../components/MapModal/MapModal";
+import FindProperties from "../../components/FindProperties/FindProperties";
 import { useLocations } from "../../context/LocationsContext";
 import "./AreaDetails.css";
 
@@ -236,6 +237,11 @@ function AreaDetails() {
 
         <div style={{ marginTop: "32px" }}>
           <Link to="/compare" className="cta-link">Compare with another area →</Link>
+        </div>
+
+        {/* Find Properties */}
+        <div style={{ marginTop: "24px" }}>
+          <FindProperties locationName={location.name} city={location.city} />
         </div>
       </div>
 

@@ -1,0 +1,90 @@
+.find-props {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-top: 16px;
+}
+
+.find-props-header {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 14px;
+}
+
+.find-props-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.find-props-sub {
+  font-size: 0.75rem;
+  color: #475569;
+}
+
+.find-props-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.find-props-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 11px 14px;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+  cursor: pointer;
+}
+
+.find-props-btn:hover {
+  border-color: var(--platform-color, #2563eb);
+  background: #1a2744;
+}
+
+.fp-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.fp-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.fp-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.fp-area {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.fp-arrow {
+  color: #475569;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.find-props-btn:hover .fp-arrow {
+  color: var(--platform-color, #2563eb);
+}
+
+.find-props-disclaimer {
+  font-size: 0.7rem;
+  color: #334155;
+  margin-top: 12px;
+  line-height: 1.4;
+}
