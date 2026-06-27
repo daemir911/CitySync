@@ -18,3 +18,42 @@ export function calculateMatchScore(location, preferences) {
 
   return Math.round(budgetScore + commuteScore + safetyScore + transitScore + amenitiesScore + lifestyleScore);
 }
+
+/**
+ * Build a plain-English explanation of why a location is the top pick.
+ */
+export function buildRecommendationReason(location, preferences) {
+  const lines = [];
+  const household = preferences?.household || "Student";
+  const maxBudget = preferences?.budget || 35000;
+  const maxCommute = preferences?.maxCommute || 60;
+
+  // Commute
+  if (location.commute > 0) {
+    if (location.commute <= 20) lines.push(`shortest commute at just ${location.commute} min`);
+    else if (location.commute <= maxCommute * 0.6) lines.push(`comfortable ${location.commute}-min commute`);
+    else lines.push(`${location.commute}-min commute within your limit`);
+  }
+
+  // Budget
+  if (location.rent > 0) {
+    const savings = maxBudget - location.rent;
+    if (savings >= 5000) lines.push(`₹${savings.toLocaleString()} under your budget`);
+    else lines.push(`rent fits your budget`);
+  }
+
+  // Safety
+  if (location.safety >= 9) lines.push("excellent safety score");
+  else if (location.safety >= 8) lines.push("good safety");
+
+  // Lifestyle
+  if (household === "Family" && location.familyFriendly >= 8.5) lines.push("highly family-friendly");
+  if (household === "Couple" && location.coupleFriendly >= 8.5) lines.push("great for couples");
+  if (household === "Student" && location.studentFriendly >= 8.5) lines.push("popular with students");
+
+  // Amenities
+  if (location.amenities >= 9) lines.push("top-tier amenities nearby");
+  else if (location.liveData?.food > 20) lines.push("excellent food & café scene");
+
+  return lines.slice(0, 3).join(" · ") || "best overall match for your criteria";
+}

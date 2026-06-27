@@ -125,16 +125,36 @@ export function useEnrichedLocations(preferences) {
           .filter((l) => l.lat && l.lon)
           .map((l) => ({ id: l.id, lat: l.lat, lon: l.lon }));
 
-        const commuteTimes = await batchCommuteToWorkplace(
-          coordsForRouting,
-          workplaceCoords.lat,
-          workplaceCoords.lon,
-          preferences.transport || "Car"
+        // Build list of all destinations: workplace + any extras
+        const allDestinations = [{ lat: workplaceCoords.lat, lon: workplaceCoords.lon }];
+        const extraDests = preferences.extraDestinations || [];
+        for (const dest of extraDests) {
+          if (!dest.place?.trim()) continue;
+          const coords = await geocode(dest.place);
+          if (coords) allDestinations.push({ lat: coords.lat, lon: coords.lon });
+        }
+
+        // Get commute times to every destination, then average per location
+        const commuteResults = await Promise.all(
+          allDestinations.map((destCoords) =>
+            batchCommuteToWorkplace(
+              coordsForRouting,
+              destCoords.lat,
+              destCoords.lon,
+              preferences.transport || "Car"
+            )
+          )
         );
         if (abortRef.current) return;
 
-        commuteTimes.forEach(({ id, commute }) => {
-          if (commute !== null) patchLocation(id, { commute, isLive: true });
+        coordsForRouting.forEach(({ id }) => {
+          const times = commuteResults
+            .map((res) => res.find((r) => r.id === id)?.commute)
+            .filter((t) => t !== null && t !== undefined);
+          if (times.length > 0) {
+            const avg = Math.round(times.reduce((a, b) => a + b, 0) / times.length);
+            patchLocation(id, { commute: avg, isLive: true });
+          }
         });
 
         // ── Step 4: Amenity profiles (Overpass) ──────────────────────────────
@@ -204,7 +224,7 @@ export function useEnrichedLocations(preferences) {
     return () => { abortRef.current = true; };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preferences?.workplace, preferences?.transport, preferences?.movingTo]);
+  }, [preferences?.workplace, preferences?.transport, preferences?.movingTo, preferences?.extraDestinations]);
 
   return { locations, loading, progress, error };
 }

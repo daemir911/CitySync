@@ -7,6 +7,7 @@ import NeighbourhoodMap from "../../components/Map/NeighbourhoodMap";
 import LiveDataBanner from "../../components/LiveDataBanner/LiveDataBanner";
 import SkeletonCard from "../../components/SkeletonCard/SkeletonCard";
 import RangeSlider from "../../components/RangeSlider/RangeSlider";
+import BestFitCard from "../../components/BestFitCard/BestFitCard";
 import { calculateMatchScore } from "../../utils/recommendations";
 import { useEnrichedLocations } from "../../hooks/useEnrichedLocations";
 import { useLocations } from "../../context/LocationsContext";
@@ -210,6 +211,11 @@ function Dashboard() {
           </div>
 
           <LiveDataBanner loading={loading} progress={progress} error={error} />
+
+          {/* Best fit recommendation — shown once loading is done and we have results */}
+          {!loading && viewMode === "list" && scoredLocations.length > 0 && (
+            <BestFitCard location={scoredLocations[0]} preferences={preferences} />
+          )}
 
           {viewMode === "map" ? (
             <NeighbourhoodMap

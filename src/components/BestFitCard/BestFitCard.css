@@ -1,0 +1,159 @@
+.bestfit-card {
+  background: linear-gradient(135deg, #1e3a5f 0%, #1e293b 100%);
+  border: 1px solid #2563eb;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bestfit-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #2563eb, #22c55e);
+}
+
+.bestfit-ribbon {
+  display: inline-block;
+  background: #2563eb;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.04em;
+  margin-bottom: 14px;
+}
+
+/* top row */
+.bestfit-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.bestfit-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 6px;
+}
+
+.bestfit-reason {
+  font-size: 0.88rem;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.bestfit-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #22c55e;
+  color: #fff;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  flex-shrink: 0;
+  min-width: 70px;
+}
+
+.bestfit-score-label {
+  font-size: 0.65rem;
+  font-weight: 400;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+/* stats row */
+.bestfit-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.bestfit-stat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid #2563eb33;
+  border-radius: 10px;
+  padding: 10px 14px;
+  flex: 1;
+  min-width: 120px;
+}
+
+.bs-icon { font-size: 1.2rem; flex-shrink: 0; }
+
+.bs-val {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.bs-label {
+  display: block;
+  font-size: 0.72rem;
+  color: #64748b;
+  margin-top: 1px;
+}
+
+/* destinations */
+.bestfit-dests {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.bestfit-dests-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.bestfit-dest-tag {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* actions */
+.bestfit-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.bestfit-btn-primary {
+  display: inline-block;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.bestfit-btn-primary:hover {
+  background: #1d4ed8;
+  color: #fff;
+}
+
+@media (max-width: 500px) {
+  .bestfit-stats { flex-direction: column; }
+  .bestfit-stat { min-width: unset; }
+}
