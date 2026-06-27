@@ -39,6 +39,7 @@ function Saved() {
       <Navbar />
 
       <div className="saved-page">
+        <Link to="/dashboard" className="page-back-link">← Back to Dashboard</Link>
         <div className="saved-header">
           <div>
             <h1>Saved Neighbourhoods</h1>

@@ -52,3 +52,18 @@ input, select, textarea {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Shared back link used across Compare, Saved, etc. */
+.page-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #60a5fa;
+  font-size: 0.88rem;
+  margin-bottom: 20px;
+  transition: color 0.15s;
+}
+
+.page-back-link:hover {
+  color: #93c5fd;
+}

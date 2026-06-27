@@ -1,21 +1,62 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import "./Preferences.css";
 
+const STEPS = [
+  {
+    id: "location",
+    title: "Where are you moving?",
+    subtitle: "Tell us your origin and destination so we can focus the right neighbourhoods.",
+    icon: "📍",
+  },
+  {
+    id: "work",
+    title: "Where do you work?",
+    subtitle: "We'll calculate real commute times from each area to your office.",
+    icon: "🏢",
+  },
+  {
+    id: "budget",
+    title: "What's your budget & commute limit?",
+    subtitle: "We'll only show areas that fit — no wasted scrolling.",
+    icon: "💰",
+  },
+  {
+    id: "lifestyle",
+    title: "What's your household like?",
+    subtitle: "This helps us weight safety, schools, nightlife, and amenities correctly.",
+    icon: "🏠",
+  },
+];
+
 const initialPreferences = {
-  currentCity: "Delhi",
-  movingTo: "Noida",
-  workplace: "Connaught Place, New Delhi",
+  currentCity: "",
+  movingTo: "",
+  workplace: "",
   budget: 35000,
   transport: "Car",
   household: "Student",
   maxCommute: 60,
 };
 
+function StepDots({ total, current }) {
+  return (
+    <div className="step-dots">
+      {Array.from({ length: total }).map((_, i) => (
+        <span
+          key={i}
+          className={`step-dot ${i === current ? "active" : i < current ? "done" : ""}`}
+        />
+      ))}
+    </div>
+  );
+}
+
 function Preferences() {
   const navigate = useNavigate();
+  const [step, setStep] = useState(0);
   const [formData, setFormData] = useState(initialPreferences);
 
   const handleChange = (e) => {
@@ -23,71 +64,186 @@ function Preferences() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const next = (e) => {
     e.preventDefault();
-    navigate("/dashboard", { state: { preferences: formData } });
+    if (step < STEPS.length - 1) setStep((s) => s + 1);
+    else navigate("/dashboard", { state: { preferences: formData } });
   };
+
+  const back = () => {
+    if (step > 0) setStep((s) => s - 1);
+  };
+
+  const current = STEPS[step];
+  const isLast = step === STEPS.length - 1;
 
   return (
     <>
       <Navbar />
 
-      <div className="form-container">
-        <h1>Your Preferences</h1>
-        <p className="form-description">
-          Tell us about your routine and budget so CitySync can suggest areas that really fit.
-        </p>
+      <div className="pref-page">
+        {/* Back to home on step 0, back to previous step otherwise */}
+        <div className="pref-back-row">
+          {step === 0 ? (
+            <Link to="/" className="pref-back-link">← Back to Home</Link>
+          ) : (
+            <button className="pref-back-link" onClick={back}>← Back</button>
+          )}
+          <span className="pref-step-label">Step {step + 1} of {STEPS.length}</span>
+        </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-row">
-            <div className="form-group">
-              <label>Current City</label>
-              <input name="currentCity" value={formData.currentCity} onChange={handleChange} placeholder="e.g. Delhi" />
-            </div>
-            <div className="form-group">
-              <label>Moving To</label>
-              <input name="movingTo" value={formData.movingTo} onChange={handleChange} placeholder="e.g. Noida" />
-            </div>
-          </div>
+        <div className="pref-card">
+          <div className="pref-card-icon">{current.icon}</div>
+          <h1 className="pref-card-title">{current.title}</h1>
+          <p className="pref-card-subtitle">{current.subtitle}</p>
 
-          <div className="form-group">
-            <label>Workplace / Office Area</label>
-            <input name="workplace" value={formData.workplace} onChange={handleChange} placeholder="e.g. Sector 62" />
-          </div>
+          <StepDots total={STEPS.length} current={step} />
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>Monthly Budget (₹)</label>
-              <input name="budget" type="number" value={formData.budget} onChange={handleChange} placeholder="e.g. 18000" />
-            </div>
-            <div className="form-group">
-              <label>Max Commute (min)</label>
-              <input name="maxCommute" type="number" value={formData.maxCommute} onChange={handleChange} placeholder="e.g. 30" />
-            </div>
-          </div>
+          <form onSubmit={next} className="pref-form">
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>Transport Mode</label>
-              <select name="transport" value={formData.transport} onChange={handleChange}>
-                <option value="Metro">Metro</option>
-                <option value="Bus">Bus</option>
-                <option value="Car">Car</option>
-                <option value="Bike">Bike</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label>Household Type</label>
-              <select name="household" value={formData.household} onChange={handleChange}>
-                <option value="Student">Student</option>
-                <option value="Family">Family</option>
-                <option value="Couple">Couple</option>
-              </select>
-            </div>
-          </div>
+            {/* Step 0 — Location */}
+            {step === 0 && (
+              <>
+                <div className="pref-field">
+                  <label>Current City</label>
+                  <input
+                    name="currentCity"
+                    value={formData.currentCity}
+                    onChange={handleChange}
+                    placeholder="e.g. Delhi"
+                    required
+                  />
+                </div>
+                <div className="pref-field">
+                  <label>Moving To</label>
+                  <input
+                    name="movingTo"
+                    value={formData.movingTo}
+                    onChange={handleChange}
+                    placeholder="e.g. Bengaluru"
+                    required
+                  />
+                </div>
+              </>
+            )}
 
-          <button type="submit">Find Locations →</button>
-        </form>
+            {/* Step 1 — Workplace */}
+            {step === 1 && (
+              <>
+                <div className="pref-field">
+                  <label>Workplace / Office Area</label>
+                  <input
+                    name="workplace"
+                    value={formData.workplace}
+                    onChange={handleChange}
+                    placeholder="e.g. Indiranagar, Bengaluru"
+                    required
+                  />
+                  <span className="pref-hint">Be specific — a neighbourhood or landmark works best.</span>
+                </div>
+                <div className="pref-field">
+                  <label>How do you commute?</label>
+                  <div className="transport-grid">
+                    {["Car", "Metro", "Bus", "Bike"].map((t) => (
+                      <label
+                        key={t}
+                        className={`transport-option ${formData.transport === t ? "selected" : ""}`}
+                      >
+                        <input
+                          type="radio"
+                          name="transport"
+                          value={t}
+                          checked={formData.transport === t}
+                          onChange={handleChange}
+                        />
+                        <span className="transport-icon">
+                          {t === "Car" ? "🚗" : t === "Metro" ? "🚇" : t === "Bus" ? "🚌" : "🚲"}
+                        </span>
+                        {t}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Step 2 — Budget */}
+            {step === 2 && (
+              <>
+                <div className="pref-field">
+                  <label>Monthly Rent Budget</label>
+                  <div className="budget-input-wrap">
+                    <span className="currency-prefix">₹</span>
+                    <input
+                      name="budget"
+                      type="number"
+                      value={formData.budget}
+                      onChange={handleChange}
+                      placeholder="35000"
+                      min="5000"
+                      max="200000"
+                      required
+                    />
+                  </div>
+                  <span className="pref-hint">Monthly rent you're comfortable paying.</span>
+                </div>
+                <div className="pref-field">
+                  <label>Maximum Commute — <strong>{formData.maxCommute} min</strong></label>
+                  <input
+                    name="maxCommute"
+                    type="range"
+                    min="10"
+                    max="120"
+                    step="5"
+                    value={formData.maxCommute}
+                    onChange={handleChange}
+                    className="range-input"
+                  />
+                  <div className="range-labels">
+                    <span>10 min</span>
+                    <span>120 min</span>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Step 3 — Lifestyle */}
+            {step === 3 && (
+              <>
+                <div className="pref-field">
+                  <label>Household Type</label>
+                  <div className="household-grid">
+                    {[
+                      { value: "Student", icon: "🎓", desc: "Near colleges, budget-friendly, social" },
+                      { value: "Couple",  icon: "👫", desc: "Walkable, good food, lively nightlife" },
+                      { value: "Family",  icon: "👨‍👩‍👧", desc: "Schools, parks, safe, quiet" },
+                    ].map(({ value, icon, desc }) => (
+                      <label
+                        key={value}
+                        className={`household-option ${formData.household === value ? "selected" : ""}`}
+                      >
+                        <input
+                          type="radio"
+                          name="household"
+                          value={value}
+                          checked={formData.household === value}
+                          onChange={handleChange}
+                        />
+                        <span className="household-icon">{icon}</span>
+                        <strong>{value}</strong>
+                        <span className="household-desc">{desc}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+
+            <button type="submit" className="pref-submit">
+              {isLast ? "Find My Neighbourhoods →" : "Continue →"}
+            </button>
+          </form>
+        </div>
       </div>
 
       <Footer />

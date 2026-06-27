@@ -69,6 +69,7 @@ function Compare() {
       <Navbar />
 
       <div className="compare-page">
+        <Link to="/dashboard" className="page-back-link">← Back to Dashboard</Link>
         <h1 className="compare-title">Compare Neighbourhoods</h1>
         <p className="compare-subtitle">Pick two areas and see exactly where they differ.</p>
 
