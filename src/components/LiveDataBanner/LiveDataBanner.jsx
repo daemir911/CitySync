@@ -9,7 +9,7 @@ function LiveDataBanner({ loading, progress, error }) {
         <span className="banner-icon">⚠️</span>
         <div>
           <strong>Live data unavailable</strong>
-          <p>{error}. Showing estimated scores from our dataset.</p>
+          <p>{error} — showing estimated scores.</p>
         </div>
       </div>
     );
@@ -18,17 +18,20 @@ function LiveDataBanner({ loading, progress, error }) {
   const pct =
     progress.total > 0
       ? Math.round((progress.done / progress.total) * 100)
-      : 0;
+      : 5; // show a sliver immediately
 
   return (
     <div className="live-banner loading">
       <span className="spinner" />
       <div className="banner-text">
         <strong>{progress.step || "Loading live data…"}</strong>
+        <div className="progress-bar-track">
+          <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
+        </div>
         {progress.total > 0 && (
-          <div className="progress-bar-track">
-            <div className="progress-bar-fill" style={{ width: `${pct}%` }} />
-          </div>
+          <span className="progress-label">
+            {progress.done} / {progress.total} areas
+          </span>
         )}
       </div>
     </div>
