@@ -9,7 +9,7 @@
 
 /* sidebar */
 .filters {
-  width: 260px;
+  width: 240px;
   flex-shrink: 0;
   background: #1e293b;
   border: 1px solid #334155;
@@ -21,14 +21,14 @@
 }
 
 .filters h2 {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 700;
   margin-bottom: 6px;
   color: #f1f5f9;
 }
 
 .filter-copy {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: #64748b;
   margin-bottom: 20px;
   line-height: 1.5;
@@ -39,7 +39,7 @@
   flex-direction: column;
   gap: 6px;
   margin-bottom: 18px;
-  font-size: 0.85rem;
+  font-size: 0.83rem;
   color: #94a3b8;
 }
 
@@ -60,24 +60,90 @@
   border-color: #2563eb;
 }
 
+.filter-divider {
+  border-top: 1px solid #334155;
+  margin: 16px 0;
+}
+
+.data-source-note {
+  font-size: 0.78rem;
+}
+
+.source-live {
+  color: #22c55e;
+}
+
+.source-static {
+  color: #64748b;
+}
+
 /* results pane */
 .results {
   flex: 1;
   min-width: 0;
 }
 
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
 .results h1 {
   font-size: 1.5rem;
   font-weight: 700;
   color: #f1f5f9;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .results-summary {
-  font-size: 0.85rem;
+  font-size: 0.83rem;
   color: #64748b;
-  margin-bottom: 24px;
   line-height: 1.5;
+}
+
+/* view toggle */
+.view-toggle {
+  display: flex;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.view-toggle button {
+  background: transparent;
+  color: #64748b;
+  border: none;
+  padding: 8px 16px;
+  font-size: 0.83rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.view-toggle button.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+.view-toggle button:hover:not(.active) {
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
+.map-card-list {
+  margin-top: 24px;
+}
+
+.map-card-list h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  margin-bottom: 16px;
 }
 
 .empty-state {
@@ -93,6 +159,7 @@
 @media (max-width: 768px) {
   .dashboard {
     flex-direction: column;
+    padding: 20px 16px;
   }
 
   .filters {

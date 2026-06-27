@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
-import { locations } from "../../data/locations";
+import { useLocations } from "../../context/LocationsContext";
 import "./AreaDetails.css";
 
 function MetricRow({ label, value, max = 10 }) {
@@ -20,6 +20,7 @@ function MetricRow({ label, value, max = 10 }) {
 
 function AreaDetails() {
   const { id } = useParams();
+  const { locations } = useLocations();
   const location = locations.find((item) => item.id === Number(id));
 
   if (!location) {
@@ -108,6 +109,24 @@ function AreaDetails() {
                 <span key={l} className="tag">{l}</span>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Live OSM amenity counts */}
+        {location.liveData && (
+          <div className="details-card" style={{ marginTop: "24px" }}>
+            <h3>Live Amenity Counts <span style={{ color: "#22c55e", textTransform: "none", letterSpacing: 0 }}>· OpenStreetMap data</span></h3>
+            <div className="amenity-grid">
+              <div className="amenity-chip">🏥 {location.liveData.healthcare} Healthcare</div>
+              <div className="amenity-chip">🎓 {location.liveData.education} Education</div>
+              <div className="amenity-chip">🛒 {location.liveData.grocery} Grocery</div>
+              <div className="amenity-chip">🍽️ {location.liveData.food} Food & Cafes</div>
+              <div className="amenity-chip">🌳 {location.liveData.leisure} Leisure</div>
+              <div className="amenity-chip">🚌 {location.liveData.transport} Transit stops</div>
+            </div>
+            <p style={{ fontSize: "0.75rem", color: "#475569", marginTop: "12px" }}>
+              Counted within 1.5 km radius · Data © OpenStreetMap contributors
+            </p>
           </div>
         )}
 

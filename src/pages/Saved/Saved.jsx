@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import LocationCard from "../../components/LocationCard/LocationCard";
-import { locations } from "../../data/locations";
+import { useLocations } from "../../context/LocationsContext";
 import "./Saved.css";
 
 function Saved() {
+  const { locations } = useLocations();
   const [savedLocations, setSavedLocations] = useState([]);
 
   const loadSaved = () => {

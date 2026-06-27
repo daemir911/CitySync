@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
-import { locations } from "../../data/locations";
+import { useLocations } from "../../context/LocationsContext";
 import "./Compare.css";
 
 const METRICS = [
@@ -26,6 +26,7 @@ function winClass(a, b, higherIsBetter) {
 }
 
 function Compare() {
+  const { locations } = useLocations();
   const [firstId, setFirstId] = useState(locations[0].id);
   const [secondId, setSecondId] = useState(locations[1].id);
 

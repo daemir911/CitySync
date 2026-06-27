@@ -195,3 +195,19 @@
 .cta-link:hover {
   color: #60a5fa;
 }
+
+/* live amenity counts */
+.amenity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.amenity-chip {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.83rem;
+  color: #cbd5e1;
+}
