@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
+import Autocomplete from "../../components/Autocomplete/Autocomplete";
 import "./Preferences.css";
 
 const STEPS = [
@@ -104,43 +105,37 @@ function Preferences() {
             {/* Step 0 — Location */}
             {step === 0 && (
               <>
-                <div className="pref-field">
-                  <label>Current City</label>
-                  <input
-                    name="currentCity"
-                    value={formData.currentCity}
-                    onChange={handleChange}
-                    placeholder="e.g. Delhi"
-                    required
-                  />
-                </div>
-                <div className="pref-field">
-                  <label>Moving To</label>
-                  <input
-                    name="movingTo"
-                    value={formData.movingTo}
-                    onChange={handleChange}
-                    placeholder="e.g. Bengaluru"
-                    required
-                  />
-                </div>
+                <Autocomplete
+                  label="Current City"
+                  name="currentCity"
+                  value={formData.currentCity}
+                  onChange={handleChange}
+                  placeholder="e.g. Delhi"
+                  required
+                />
+                <Autocomplete
+                  label="Moving To"
+                  name="movingTo"
+                  value={formData.movingTo}
+                  onChange={handleChange}
+                  placeholder="e.g. Bengaluru"
+                  required
+                />
               </>
             )}
 
             {/* Step 1 — Workplace */}
             {step === 1 && (
               <>
-                <div className="pref-field">
-                  <label>Workplace / Office Area</label>
-                  <input
-                    name="workplace"
-                    value={formData.workplace}
-                    onChange={handleChange}
-                    placeholder="e.g. Indiranagar, Bengaluru"
-                    required
-                  />
-                  <span className="pref-hint">Be specific — a neighbourhood or landmark works best.</span>
-                </div>
+                <Autocomplete
+                  label="Workplace / Office Area"
+                  name="workplace"
+                  value={formData.workplace}
+                  onChange={handleChange}
+                  placeholder="e.g. Indiranagar, Bengaluru"
+                  hint="Be specific — a neighbourhood or landmark works best."
+                  required
+                />
                 <div className="pref-field">
                   <label>How do you commute?</label>
                   <div className="transport-grid">
