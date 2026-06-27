@@ -14,13 +14,25 @@ import "./Dashboard.css";
 
 function Dashboard() {
   const routerLocation = useLocation();
-  const preferences = routerLocation.state?.preferences || {
-    budget: 35000,
-    maxCommute: 60,
-    household: "Student",
-    transport: "Car",
-    workplace: "Connaught Place, New Delhi",
-  };
+
+  // Persist preferences in sessionStorage so refresh doesn't reset everything
+  const preferences = useMemo(() => {
+    const fromRoute = routerLocation.state?.preferences;
+    if (fromRoute) {
+      sessionStorage.setItem("citysync_prefs", JSON.stringify(fromRoute));
+      return fromRoute;
+    }
+    const stored = sessionStorage.getItem("citysync_prefs");
+    if (stored) return JSON.parse(stored);
+    return {
+      budget: 35000,
+      maxCommute: 60,
+      household: "Student",
+      transport: "Car",
+      workplace: "Connaught Place, New Delhi",
+      movingTo: "",
+    };
+  }, [routerLocation.state?.preferences]);
 
   const [budgetRange, setBudgetRange] = useState([
     preferences.minBudget || 5000,
