@@ -24,18 +24,16 @@ const STATIC_CITIES = ["noida", "delhi", "bengaluru", "bangalore", "mumbai", "bo
 const GEOCODE_STAGGER_MS = 350;
 const OVERPASS_STAGGER_MS = 600;
 
-let _nextDynId = 1000;
-
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
 function cityFromPrefs(prefs) {
-  return (prefs?.movingTo || "").toLowerCase().trim();
+  return (prefs?.movingTo || "").split(",")[0].toLowerCase().trim();
 }
 
 function isStaticCity(city) {
-  return STATIC_CITIES.some((c) => city.includes(c));
+  return STATIC_CITIES.some((c) => city.includes(c) || c.includes(city));
 }
 
 export function useEnrichedLocations(preferences) {
@@ -68,6 +66,9 @@ export function useEnrichedLocations(preferences) {
     // Seed with appropriate base locations
     setLocations(useDynamic ? [] : staticLocations);
 
+    // Also pass the clean city name to searchNeighbourhoods
+    const cityForSearch = preferences.movingTo?.split(",")[0].trim() || city;
+
     async function enrich() {
       try {
         const total = useDynamic ? 10 : staticLocations.length;
@@ -86,18 +87,20 @@ export function useEnrichedLocations(preferences) {
         let baseLocations;
 
         if (useDynamic) {
-          setProgress({ step: `Searching neighbourhoods in ${preferences.movingTo}…`, done: 0, total });
-          const found = await searchNeighbourhoods(preferences.movingTo, 10);
+          setProgress({ step: `Searching neighbourhoods in ${cityForSearch}…`, done: 0, total });
+          const found = await searchNeighbourhoods(cityForSearch, 10);
           if (abortRef.current) return;
 
           if (!found.length) {
-            throw new Error(
-              `No neighbourhoods found for "${preferences.movingTo}". Try a larger city name.`
-            );
+            // Fall back to showing static locations with a warning instead of hard error
+            setLocations(staticLocations);
+            setError(`No neighbourhoods found for "${cityForSearch}" — showing our curated dataset instead.`);
+            setLoading(false);
+            return;
           }
 
           // Assign stable numeric IDs
-          baseLocations = found.map((l) => ({ ...l, id: _nextDynId++ }));
+          baseLocations = found.map((l, i) => ({ ...l, id: 1000 + i }));
           setLocations(baseLocations);
         } else {
           baseLocations = staticLocations;
