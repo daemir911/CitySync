@@ -59,13 +59,16 @@ function Dashboard() {
           household: householdFilter,
         }),
       }))
-      .filter(
-        (loc) =>
-          loc.rent >= minBudget &&
-          loc.rent <= maxBudget &&
-          loc.commute >= minCommute &&
-          loc.commute <= maxCommute
-      )
+      .filter((loc) => {
+        // Dynamic locations start with rent:0 while Overpass is loading — don't filter them out
+        const rentOk = loc.isDynamic && loc.rent === 0
+          ? true
+          : loc.rent >= minBudget && loc.rent <= maxBudget;
+        const commuteOk = loc.commute === 0
+          ? true
+          : loc.commute >= minCommute && loc.commute <= maxCommute;
+        return rentOk && commuteOk;
+      })
       .sort((a, b) => b.matchScore - a.matchScore);
   }, [locations, budgetRange, commuteRange, householdFilter, preferences]);
 
@@ -160,13 +163,23 @@ function Dashboard() {
         <div className="results">
           <div className="results-header">
             <div>
-              <h1>Recommended Areas</h1>
+              <h1>
+                Recommended Areas
+                {preferences.movingTo && (
+                  <span className="city-badge"> in {preferences.movingTo}</span>
+                )}
+              </h1>
               <p className="results-summary">
                 {scoredLocations.length} neighbourhood{scoredLocations.length !== 1 ? "s" : ""} match
                 your criteria · ₹{budgetRange[0].toLocaleString()}–₹{budgetRange[1].toLocaleString()} ·{" "}
                 {commuteRange[0]}–{commuteRange[1]} min commute
                 {preferences.workplace ? ` to ${preferences.workplace}` : ""}
               </p>
+              {locations[0]?.isDynamic && !loading && (
+                <p className="dynamic-note">
+                  🔍 Showing real neighbourhoods found in {preferences.movingTo} via OpenStreetMap
+                </p>
+              )}
             </div>
             <div className="view-toggle">
               <button

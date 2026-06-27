@@ -41,27 +41,84 @@ export async function geocode(placeName) {
 }
 
 /**
- * Reverse geocode lat/lon to a human-readable address.
+ * Search for real neighbourhoods/suburbs in a city using Nominatim.
+ * Returns up to `limit` results as location-like objects.
+ *
+ * @param {string} cityName  e.g. "Pune", "Hyderabad"
+ * @param {number} limit
+ * @returns {Promise<Array>}
  */
-export async function reverseGeocode(lat, lon) {
-  const key = `rev:${lat.toFixed(4)},${lon.toFixed(4)}`;
+export async function searchNeighbourhoods(cityName, limit = 12) {
+  const key = `nh:${cityName.toLowerCase().trim()}:${limit}`;
   const cached = sessionStorage.getItem(key);
   if (cached) return JSON.parse(cached);
 
-  const url = `${NOMINATIM}/reverse?lat=${lat}&lon=${lon}&format=json`;
+  // Search for suburbs/neighbourhoods/quarters in the city
+  const url = `${NOMINATIM}/search?q=${encodeURIComponent(cityName)}&format=json&limit=${limit * 3}&countrycodes=in&addressdetails=1&featuretype=settlement`;
 
   try {
     const res = await fetch(url, {
       headers: { "User-Agent": "CitySync/1.0 (citysync-app)" },
     });
     const data = await res.json();
-    const result = {
-      displayName: data.display_name || `${lat}, ${lon}`,
-      address: data.address || {},
-    };
-    sessionStorage.setItem(key, JSON.stringify(result));
-    return result;
+
+    // Filter to suburb/neighbourhood/quarter/city_block types
+    const relevant = data.filter((item) =>
+      ["suburb", "neighbourhood", "quarter", "city_block", "town", "village", "residential"].includes(
+        item.type
+      )
+    );
+
+    // Deduplicate by display name prefix
+    const seen = new Set();
+    const results = [];
+
+    for (const item of relevant) {
+      const a = item.address || {};
+      const name =
+        a.suburb ||
+        a.neighbourhood ||
+        a.quarter ||
+        a.residential ||
+        item.name;
+
+      if (!name || seen.has(name.toLowerCase())) continue;
+      seen.add(name.toLowerCase());
+
+      const city =
+        a.city || a.town || a.county || a.state_district || cityName;
+
+      results.push({
+        id: `dyn_${item.osm_id}`,
+        name: `${name}, ${city}`,
+        city,
+        lat: parseFloat(item.lat),
+        lon: parseFloat(item.lon),
+        // Placeholder scores — overwritten by live Overpass data
+        rent: 0,
+        commute: 0,
+        safety: 7,
+        transit: 7,
+        amenities: 7,
+        schools: 7,
+        parks: 7,
+        nightlife: 6,
+        familyFriendly: 7,
+        coupleFriendly: 7,
+        studentFriendly: 7,
+        description: `A neighbourhood in ${city}.`,
+        highlights: [],
+        nearbyLandmarks: [],
+        transportOptions: [],
+        isDynamic: true,
+      });
+
+      if (results.length >= limit) break;
+    }
+
+    sessionStorage.setItem(key, JSON.stringify(results));
+    return results;
   } catch {
-    return null;
+    return [];
   }
 }

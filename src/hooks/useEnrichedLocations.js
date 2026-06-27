@@ -1,26 +1,41 @@
 /**
  * useEnrichedLocations
- * Geocodes locations, fetches real commute times (OSRM) and
- * live amenity scores (Overpass) — updates UI progressively as each completes.
  *
- * Strategy:
- * - Geocoding: parallel with 300ms stagger (Nominatim is lenient for small batches)
- * - OSRM: fully parallel (no rate limit)
- * - Overpass: parallel with 500ms stagger, one query per location
- * - If any step times out or errors, falls back to static data for that location
+ * Two modes:
+ * 1. Static mode  — user is moving to a city already in our dataset
+ *                   (Noida, Delhi, Bengaluru, Mumbai). Uses the 8 hardcoded
+ *                   locations as the base and enriches with live data.
+ *
+ * 2. Dynamic mode — user typed any other Indian city. Searches Nominatim for
+ *                   real neighbourhoods there, then fetches live commute +
+ *                   amenity data for each one from scratch.
+ *
+ * In both modes results are patched progressively so the UI updates as data
+ * arrives instead of waiting for everything.
  */
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { geocode } from "../services/geocoding";
+import { geocode, searchNeighbourhoods } from "../services/geocoding";
 import { batchCommuteToWorkplace } from "../services/routing";
 import { getAmenityProfile } from "../services/overpass";
 import { locations as staticLocations } from "../data/locations";
 
-const GEOCODE_STAGGER_MS = 350;  // gentle stagger for Nominatim
-const OVERPASS_STAGGER_MS = 600; // stagger Overpass calls to avoid 429
+const STATIC_CITIES = ["noida", "delhi", "bengaluru", "bangalore", "mumbai", "bombay"];
+const GEOCODE_STAGGER_MS = 350;
+const OVERPASS_STAGGER_MS = 600;
+
+let _nextDynId = 1000;
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+function cityFromPrefs(prefs) {
+  return (prefs?.movingTo || "").toLowerCase().trim();
+}
+
+function isStaticCity(city) {
+  return STATIC_CITIES.some((c) => city.includes(c));
 }
 
 export function useEnrichedLocations(preferences) {
@@ -30,11 +45,14 @@ export function useEnrichedLocations(preferences) {
   const [error, setError] = useState(null);
   const abortRef = useRef(false);
 
-  // Merge a partial update for one location into state
-  const patchLocation = useCallback((id, patch) => {
-    setLocations((prev) =>
-      prev.map((l) => (l.id === id ? { ...l, ...patch } : l))
-    );
+  const patchLocation = useCallback((idOrFn, patch) => {
+    if (typeof idOrFn === "function") {
+      setLocations(idOrFn);
+    } else {
+      setLocations((prev) =>
+        prev.map((l) => (l.id === idOrFn ? { ...l, ...patch } : l))
+      );
+    }
   }, []);
 
   useEffect(() => {
@@ -43,52 +61,69 @@ export function useEnrichedLocations(preferences) {
     abortRef.current = false;
     setLoading(true);
     setError(null);
-    // Start from static data each time preferences change
-    setLocations(staticLocations);
+
+    const city = cityFromPrefs(preferences);
+    const useDynamic = city && !isStaticCity(city);
+
+    // Seed with appropriate base locations
+    setLocations(useDynamic ? [] : staticLocations);
 
     async function enrich() {
       try {
-        const total = staticLocations.length;
+        const total = useDynamic ? 10 : staticLocations.length;
 
         // ── Step 1: Geocode workplace ────────────────────────────────────────
         setProgress({ step: "Locating your workplace…", done: 0, total });
         const workplaceCoords = await geocode(preferences.workplace);
         if (abortRef.current) return;
         if (!workplaceCoords) {
-          throw new Error(`Could not find "${preferences.workplace}" — check the spelling and try again.`);
+          throw new Error(
+            `Could not find "${preferences.workplace}" — check the spelling.`
+          );
         }
 
-        // ── Step 2: Geocode all locations in parallel (staggered) ────────────
-        setProgress({ step: "Locating neighbourhoods…", done: 0, total });
+        // ── Step 2: Get base locations ───────────────────────────────────────
+        let baseLocations;
 
-        const coordEntries = await Promise.all(
-          staticLocations.map(async (loc, i) => {
-            await sleep(i * GEOCODE_STAGGER_MS);
-            if (abortRef.current) return { id: loc.id, coords: null };
-            const coords = await geocode(loc.name);
-            if (coords) {
-              // Immediately patch lat/lon so map pins appear early
-              patchLocation(loc.id, { lat: coords.lat, lon: coords.lon });
-            }
-            return { id: loc.id, coords };
-          })
-        );
-        if (abortRef.current) return;
+        if (useDynamic) {
+          setProgress({ step: `Searching neighbourhoods in ${preferences.movingTo}…`, done: 0, total });
+          const found = await searchNeighbourhoods(preferences.movingTo, 10);
+          if (abortRef.current) return;
 
-        const coordMap = {};
-        coordEntries.forEach(({ id, coords }) => {
-          if (coords) coordMap[id] = coords;
-        });
+          if (!found.length) {
+            throw new Error(
+              `No neighbourhoods found for "${preferences.movingTo}". Try a larger city name.`
+            );
+          }
 
-        // ── Step 3: Commute times (OSRM — fully parallel, fast) ──────────────
+          // Assign stable numeric IDs
+          baseLocations = found.map((l) => ({ ...l, id: _nextDynId++ }));
+          setLocations(baseLocations);
+        } else {
+          baseLocations = staticLocations;
+
+          // Geocode static locations in parallel (staggered)
+          setProgress({ step: "Locating neighbourhoods…", done: 0, total });
+          await Promise.all(
+            baseLocations.map(async (loc, i) => {
+              await sleep(i * GEOCODE_STAGGER_MS);
+              if (abortRef.current) return;
+              const coords = await geocode(loc.name);
+              if (coords) patchLocation(loc.id, { lat: coords.lat, lon: coords.lon });
+            })
+          );
+          if (abortRef.current) return;
+        }
+
+        // ── Step 3: Commute times (OSRM) ────────────────────────────────────
         setProgress({ step: "Calculating commute times…", done: 0, total });
 
-        const locationCoords = staticLocations
-          .filter((l) => coordMap[l.id])
-          .map((l) => ({ id: l.id, ...coordMap[l.id] }));
+        const coordsForRouting = baseLocations
+          .filter((l) => l.lat && l.lon)
+          .map((l) => ({ id: l.id, lat: l.lat, lon: l.lon }));
 
         const commuteTimes = await batchCommuteToWorkplace(
-          locationCoords,
+          coordsForRouting,
           workplaceCoords.lat,
           workplaceCoords.lon,
           preferences.transport || "Car"
@@ -99,40 +134,44 @@ export function useEnrichedLocations(preferences) {
           if (commute !== null) patchLocation(id, { commute, isLive: true });
         });
 
-        // ── Step 4: Amenity profiles (Overpass — staggered parallel) ─────────
+        // ── Step 4: Amenity profiles (Overpass) ──────────────────────────────
         setProgress({ step: "Fetching live amenity data…", done: 0, total });
 
         let done = 0;
         await Promise.all(
-          staticLocations.map(async (loc, i) => {
-            const coords = coordMap[loc.id];
-            if (!coords) return;
-
+          baseLocations.map(async (loc, i) => {
+            if (!loc.lat || !loc.lon) return;
             await sleep(i * OVERPASS_STAGGER_MS);
             if (abortRef.current) return;
 
-            const amenityData = await getAmenityProfile(coords.lat, coords.lon, 1500);
-
+            const amenityData = await getAmenityProfile(loc.lat, loc.lon, 1500);
             done++;
             setProgress({ step: "Fetching live amenity data…", done, total });
+            if (!amenityData) return;
 
-            if (!amenityData) return; // timed out — keep static scores
-
-            patchLocation(loc.id, {
+            const patch = {
               amenities: amenityData.scores?.amenities ?? loc.amenities,
-              transit: amenityData.scores?.transit ?? loc.transit,
-              liveData: amenityData.raw
-                ? {
-                    healthcare: amenityData.raw.healthcare ?? 0,
-                    education:  amenityData.raw.education  ?? 0,
-                    grocery:    amenityData.raw.grocery    ?? 0,
-                    food:       amenityData.raw.food       ?? 0,
-                    leisure:    amenityData.raw.leisure    ?? 0,
-                    transport:  amenityData.raw.transport  ?? 0,
-                  }
-                : null,
+              transit:   amenityData.scores?.transit   ?? loc.transit,
               isLive: true,
-            });
+              liveData: amenityData.raw ? { ...amenityData.raw } : null,
+            };
+
+            // For dynamic locations also derive lifestyle scores from amenity data
+            if (loc.isDynamic) {
+              const edu   = amenityData.scores?.educationScore  ?? 7;
+              const park  = amenityData.scores?.leisureScore    ?? 6;
+              const night = amenityData.scores?.foodScore       ?? 6;
+              patch.schools         = edu;
+              patch.parks           = park;
+              patch.nightlife       = night;
+              patch.familyFriendly  = parseFloat(((edu + park + amenityData.scores?.healthcareScore) / 3).toFixed(1));
+              patch.coupleFriendly  = parseFloat(((night + park + amenityData.scores?.amenities) / 3).toFixed(1));
+              patch.studentFriendly = parseFloat(((edu + night + amenityData.scores?.transitScore) / 3).toFixed(1));
+              patch.description     = buildDescription(loc.name, amenityData.raw);
+              patch.highlights      = buildHighlights(amenityData.raw);
+            }
+
+            patchLocation(loc.id, patch);
           })
         );
 
@@ -141,7 +180,7 @@ export function useEnrichedLocations(preferences) {
       } catch (err) {
         if (!abortRef.current) {
           setError(err.message || "Failed to fetch live data");
-          setLocations(staticLocations);
+          if (!useDynamic) setLocations(staticLocations);
         }
       } finally {
         if (!abortRef.current) setLoading(false);
@@ -149,11 +188,34 @@ export function useEnrichedLocations(preferences) {
     }
 
     enrich();
+    return () => { abortRef.current = true; };
 
-    return () => {
-      abortRef.current = true;
-    };
-  }, [preferences?.workplace, preferences?.transport, patchLocation]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preferences?.workplace, preferences?.transport, preferences?.movingTo]);
 
   return { locations, loading, progress, error };
+}
+
+// ── Helpers for dynamic location descriptions ──────────────────────────────
+
+function buildDescription(name, raw) {
+  const parts = [];
+  if (raw?.food > 10)       parts.push("a strong food and café scene");
+  if (raw?.healthcare > 5)  parts.push("good healthcare access");
+  if (raw?.education > 5)   parts.push("schools and colleges nearby");
+  if (raw?.leisure > 5)     parts.push("parks and leisure facilities");
+  if (raw?.transport > 3)   parts.push("decent public transport links");
+  if (!parts.length)        return `A neighbourhood in ${name.split(",")[1]?.trim() || "the city"}.`;
+  return `${name.split(",")[0]} has ${parts.slice(0, 3).join(", ")}.`;
+}
+
+function buildHighlights(raw) {
+  const h = [];
+  if (raw?.healthcare > 3)  h.push("Healthcare facilities nearby");
+  if (raw?.education > 3)   h.push("Schools & colleges");
+  if (raw?.grocery > 3)     h.push("Grocery & daily essentials");
+  if (raw?.food > 10)       h.push("Restaurants & cafes");
+  if (raw?.leisure > 3)     h.push("Parks & recreation");
+  if (raw?.transport > 2)   h.push("Public transit access");
+  return h.slice(0, 5);
 }

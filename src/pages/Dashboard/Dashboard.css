@@ -203,3 +203,15 @@
   margin-bottom: 10px;
   font-weight: 500;
 }
+
+.city-badge {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #60a5fa;
+}
+
+.dynamic-note {
+  font-size: 0.78rem;
+  color: #22c55e;
+  margin-top: 4px;
+}

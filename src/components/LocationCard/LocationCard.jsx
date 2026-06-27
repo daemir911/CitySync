@@ -70,11 +70,11 @@ function LocationCard({ location, matchScore }) {
       <div className="card-stats">
         <div className="stat-chip">
           <span className="stat-icon">💰</span>
-          <span>₹{location.rent.toLocaleString()}/mo</span>
+          <span>{location.rent > 0 ? `₹${location.rent.toLocaleString()}/mo` : "Fetching…"}</span>
         </div>
         <div className="stat-chip">
           <span className="stat-icon">🚇</span>
-          <span>{location.commute} min commute{location.isLive ? <span className="live-tag">live</span> : null}</span>
+          <span>{location.commute > 0 ? `${location.commute} min commute` : "Calculating…"}{location.isLive && location.commute > 0 ? <span className="live-tag">live</span> : null}</span>
         </div>
         <div className="stat-chip">
           <span className="stat-icon">🛡️</span>
