@@ -7,11 +7,11 @@ import "./Preferences.css";
 const initialPreferences = {
   currentCity: "Delhi",
   movingTo: "Noida",
-  workplace: "Sector 62",
-  budget: 18000,
-  transport: "Metro",
+  workplace: "Connaught Place, New Delhi",
+  budget: 35000,
+  transport: "Car",
   household: "Student",
-  maxCommute: 30,
+  maxCommute: 60,
 };
 
 function Preferences() {

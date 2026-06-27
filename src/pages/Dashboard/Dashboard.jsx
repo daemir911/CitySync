@@ -14,15 +14,15 @@ import "./Dashboard.css";
 function Dashboard() {
   const routerLocation = useLocation();
   const preferences = routerLocation.state?.preferences || {
-    budget: 18000,
-    maxCommute: 30,
+    budget: 35000,
+    maxCommute: 60,
     household: "Student",
-    transport: "Metro",
-    workplace: "",
+    transport: "Car",
+    workplace: "Connaught Place, New Delhi",
   };
 
-  const [budgetFilter, setBudgetFilter] = useState(String(preferences.budget || 18000));
-  const [commuteFilter, setCommuteFilter] = useState(String(preferences.maxCommute || 30));
+  const [budgetFilter, setBudgetFilter] = useState(String(preferences.budget || 35000));
+  const [commuteFilter, setCommuteFilter] = useState(String(preferences.maxCommute || 60));
   const [householdFilter, setHouseholdFilter] = useState(preferences.household || "Student");
   const [viewMode, setViewMode] = useState("list"); // "list" | "map"
 
