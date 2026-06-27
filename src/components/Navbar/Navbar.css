@@ -1,0 +1,12 @@
+.navbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px 8%;
+    background:#111827;
+}
+
+.nav-links{
+    display:flex;
+    gap:25px;
+}

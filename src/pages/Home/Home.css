@@ -1,0 +1,145 @@
+.hero {
+  min-height: 72vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+  padding: 60px 24px;
+  background: radial-gradient(ellipse at 50% 0%, #1d3461 0%, #0f172a 70%);
+}
+
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 800;
+  max-width: 700px;
+  line-height: 1.2;
+  color: #f1f5f9;
+}
+
+.hero p {
+  font-size: 1.1rem;
+  color: #94a3b8;
+  max-width: 500px;
+  line-height: 1.6;
+}
+
+.hero button {
+  padding: 14px 32px;
+  background: #2563eb;
+  color: white;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.2s, transform 0.1s;
+  margin-top: 8px;
+}
+
+.hero button:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.features {
+  width: 90%;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding: 60px 0 40px;
+}
+
+.card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  padding: 28px 24px;
+  border-radius: 12px;
+  text-align: left;
+}
+
+.card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #e2e8f0;
+}
+
+.card p {
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+/* how it works */
+.how-it-works {
+  width: 90%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px 0 80px;
+  text-align: center;
+}
+
+.how-it-works h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 32px;
+  color: #f1f5f9;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: left;
+}
+
+.step {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.step-num {
+  background: #2563eb;
+  color: white;
+  font-weight: 700;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+}
+
+.step strong {
+  display: block;
+  color: #e2e8f0;
+  margin-bottom: 4px;
+  font-size: 0.95rem;
+}
+
+.step p {
+  color: #64748b;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .features {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .features {
+    grid-template-columns: 1fr;
+  }
+}
