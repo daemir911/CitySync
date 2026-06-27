@@ -192,45 +192,14 @@
   line-height: 1.5;
 }
 
-/* range sliders in sidebar */
-.filter-range {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 5px;
-  background: #334155;
-  border-radius: 4px;
-  outline: none;
-  cursor: pointer;
-  margin-top: 8px;
-  border: none !important;
-  padding: 0 !important;
-  background-image: none !important;
+.filter-group {
+  margin-bottom: 22px;
 }
 
-.filter-range::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #2563eb;
-  cursor: pointer;
-  border: 2px solid #0f172a;
-}
-
-.filter-range::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #2563eb;
-  cursor: pointer;
-  border: 2px solid #0f172a;
-}
-
-.range-track-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.7rem;
-  color: #475569;
-  margin-top: 4px;
+.filter-label {
+  display: block;
+  font-size: 0.83rem;
+  color: #94a3b8;
+  margin-bottom: 10px;
+  font-weight: 500;
 }

@@ -6,6 +6,7 @@ import LocationCard from "../../components/LocationCard/LocationCard";
 import NeighbourhoodMap from "../../components/Map/NeighbourhoodMap";
 import LiveDataBanner from "../../components/LiveDataBanner/LiveDataBanner";
 import SkeletonCard from "../../components/SkeletonCard/SkeletonCard";
+import RangeSlider from "../../components/RangeSlider/RangeSlider";
 import { calculateMatchScore } from "../../utils/recommendations";
 import { useEnrichedLocations } from "../../hooks/useEnrichedLocations";
 import { useLocations } from "../../context/LocationsContext";
@@ -21,8 +22,14 @@ function Dashboard() {
     workplace: "Connaught Place, New Delhi",
   };
 
-  const [budgetFilter, setBudgetFilter] = useState(String(preferences.budget || 35000));
-  const [commuteFilter, setCommuteFilter] = useState(String(preferences.maxCommute || 60));
+  const [budgetRange, setBudgetRange] = useState([
+    preferences.minBudget || 5000,
+    preferences.budget || 35000,
+  ]);
+  const [commuteRange, setCommuteRange] = useState([
+    preferences.minCommute || 0,
+    preferences.maxCommute || 60,
+  ]);
   const [householdFilter, setHouseholdFilter] = useState(preferences.household || "Student");
   const [viewMode, setViewMode] = useState("list"); // "list" | "map"
 
@@ -39,22 +46,28 @@ function Dashboard() {
 
   // Score and filter
   const scoredLocations = useMemo(() => {
-    const parsedBudget = Number(budgetFilter || 20000);
-    const parsedCommute = Number(commuteFilter || 45);
+    const [minBudget, maxBudget] = budgetRange;
+    const [minCommute, maxCommute] = commuteRange;
 
     return locations
       .map((loc) => ({
         ...loc,
         matchScore: calculateMatchScore(loc, {
           ...preferences,
-          budget: parsedBudget,
-          maxCommute: parsedCommute,
+          budget: maxBudget,
+          maxCommute,
           household: householdFilter,
         }),
       }))
-      .filter((loc) => loc.rent <= parsedBudget && loc.commute <= parsedCommute)
+      .filter(
+        (loc) =>
+          loc.rent >= minBudget &&
+          loc.rent <= maxBudget &&
+          loc.commute >= minCommute &&
+          loc.commute <= maxCommute
+      )
       .sort((a, b) => b.matchScore - a.matchScore);
-  }, [locations, budgetFilter, commuteFilter, householdFilter, preferences]);
+  }, [locations, budgetRange, commuteRange, householdFilter, preferences]);
 
   // Workplace coords for map pin
   const workplaceCoords = useMemo(() => {
@@ -81,39 +94,29 @@ function Dashboard() {
           <h2>Filters</h2>
           <p className="filter-copy">Adjust and see rankings update live.</p>
 
-          <label>
-            Budget — ₹{Number(budgetFilter).toLocaleString()}
-            <input
-              type="range"
-              min="5000"
-              max="60000"
-              step="1000"
-              value={budgetFilter}
-              onChange={(e) => setBudgetFilter(e.target.value)}
-              className="filter-range"
+          <div className="filter-group">
+            <span className="filter-label">Budget</span>
+            <RangeSlider
+              min={5000}
+              max={60000}
+              step={1000}
+              value={budgetRange}
+              onChange={setBudgetRange}
+              format={(v) => `₹${v.toLocaleString()}`}
             />
-            <div className="range-track-labels">
-              <span>₹5k</span>
-              <span>₹60k</span>
-            </div>
-          </label>
+          </div>
 
-          <label>
-            Commute — {commuteFilter} min
-            <input
-              type="range"
-              min="10"
-              max="120"
-              step="5"
-              value={commuteFilter}
-              onChange={(e) => setCommuteFilter(e.target.value)}
-              className="filter-range"
+          <div className="filter-group">
+            <span className="filter-label">Commute time</span>
+            <RangeSlider
+              min={0}
+              max={120}
+              step={5}
+              value={commuteRange}
+              onChange={setCommuteRange}
+              format={(v) => `${v} min`}
             />
-            <div className="range-track-labels">
-              <span>10 min</span>
-              <span>120 min</span>
-            </div>
-          </label>
+          </div>
 
           <label>
             Household
@@ -160,8 +163,8 @@ function Dashboard() {
               <h1>Recommended Areas</h1>
               <p className="results-summary">
                 {scoredLocations.length} neighbourhood{scoredLocations.length !== 1 ? "s" : ""} match
-                your criteria · ₹{Number(budgetFilter).toLocaleString()} budget ·{" "}
-                {commuteFilter} min commute
+                your criteria · ₹{budgetRange[0].toLocaleString()}–₹{budgetRange[1].toLocaleString()} ·{" "}
+                {commuteRange[0]}–{commuteRange[1]} min commute
                 {preferences.workplace ? ` to ${preferences.workplace}` : ""}
               </p>
             </div>

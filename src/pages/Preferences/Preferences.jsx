@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import Autocomplete from "../../components/Autocomplete/Autocomplete";
+import RangeSlider from "../../components/RangeSlider/RangeSlider";
 import "./Preferences.css";
 
 const STEPS = [
@@ -36,10 +37,10 @@ const initialPreferences = {
   currentCity: "",
   movingTo: "",
   workplace: "",
-  budget: 35000,
+  budgetRange: [5000, 35000],
   transport: "Car",
   household: "Student",
-  maxCommute: 60,
+  commuteRange: [0, 60],
 };
 
 function StepDots({ total, current }) {
@@ -68,7 +69,13 @@ function Preferences() {
   const next = (e) => {
     e.preventDefault();
     if (step < STEPS.length - 1) setStep((s) => s + 1);
-    else navigate("/dashboard", { state: { preferences: formData } });
+    else navigate("/dashboard", { state: { preferences: {
+      ...formData,
+      budget: formData.budgetRange[1],
+      minBudget: formData.budgetRange[0],
+      maxCommute: formData.commuteRange[1],
+      minCommute: formData.commuteRange[0],
+    } } });
   };
 
   const back = () => {
@@ -166,39 +173,26 @@ function Preferences() {
             {step === 2 && (
               <>
                 <div className="pref-field">
-                  <label>Monthly Rent Budget — <strong>₹{Number(formData.budget).toLocaleString()}</strong></label>
-                  <input
-                    name="budget"
-                    type="range"
-                    min="5000"
-                    max="60000"
-                    step="1000"
-                    value={formData.budget}
-                    onChange={handleChange}
-                    className="range-input"
+                  <label>Monthly Rent Budget</label>
+                  <RangeSlider
+                    min={5000}
+                    max={60000}
+                    step={1000}
+                    value={formData.budgetRange}
+                    onChange={(v) => setFormData((p) => ({ ...p, budgetRange: v }))}
+                    format={(v) => `₹${v.toLocaleString()}`}
                   />
-                  <div className="range-labels">
-                    <span>₹5,000</span>
-                    <span>₹60,000</span>
-                  </div>
-                  <span className="pref-hint">Monthly rent you're comfortable paying.</span>
                 </div>
                 <div className="pref-field">
-                  <label>Maximum Commute — <strong>{formData.maxCommute} min</strong></label>
-                  <input
-                    name="maxCommute"
-                    type="range"
-                    min="10"
-                    max="120"
-                    step="5"
-                    value={formData.maxCommute}
-                    onChange={handleChange}
-                    className="range-input"
+                  <label>Commute Time</label>
+                  <RangeSlider
+                    min={0}
+                    max={120}
+                    step={5}
+                    value={formData.commuteRange}
+                    onChange={(v) => setFormData((p) => ({ ...p, commuteRange: v }))}
+                    format={(v) => `${v} min`}
                   />
-                  <div className="range-labels">
-                    <span>10 min</span>
-                    <span>120 min</span>
-                  </div>
                 </div>
               </>
             )}
