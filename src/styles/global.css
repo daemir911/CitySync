@@ -1,26 +1,54 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Poppins,sans-serif;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-body{
-    background:#0f172a;
-    color:white;
+body {
+  font-family: 'Poppins', system-ui, sans-serif;
+  background: #0f172a;
+  color: #f1f5f9;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-a{
-    text-decoration:none;
-    color:white;
+/* Override index.css default that constrains width */
+#root {
+  width: 100%;
+  max-width: 100%;
+  text-align: left;
+  border: none;
+  display: block;
 }
 
-.container{
-    width:90%;
-    margin:auto;
+a {
+  text-decoration: none;
+  color: inherit;
 }
 
-button{
-    cursor:pointer;
-    border:none;
+button {
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}
+
+input, select, textarea {
+  font-family: inherit;
+}
+
+/* Keyboard focus ring — accessibility */
+:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

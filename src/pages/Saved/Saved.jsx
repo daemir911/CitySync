@@ -17,12 +17,17 @@ function Saved() {
 
   useEffect(() => {
     loadSaved();
+  // Re-run whenever locations hydrate (e.g. after Dashboard enriches them)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locations]);
 
-    // Refresh when localStorage changes (e.g. unsaved from card)
+  // Also sync when user returns to this tab from another tab
+  useEffect(() => {
     const handleStorage = () => loadSaved();
     window.addEventListener("storage", handleStorage);
     return () => window.removeEventListener("storage", handleStorage);
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locations]);
 
   const clearAll = () => {
     localStorage.removeItem("savedLocations");

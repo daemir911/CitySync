@@ -1,10 +1,11 @@
 import { useMemo, useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import LocationCard from "../../components/LocationCard/LocationCard";
 import NeighbourhoodMap from "../../components/Map/NeighbourhoodMap";
 import LiveDataBanner from "../../components/LiveDataBanner/LiveDataBanner";
+import SkeletonCard from "../../components/SkeletonCard/SkeletonCard";
 import { calculateMatchScore } from "../../utils/recommendations";
 import { useEnrichedLocations } from "../../hooks/useEnrichedLocations";
 import { useLocations } from "../../context/LocationsContext";
@@ -123,6 +124,17 @@ function Dashboard() {
               <span className="source-static">📦 Using estimated data</span>
             )}
           </div>
+
+          <div className="filter-divider" />
+
+          <Link to="/preferences" className="edit-prefs-btn">
+            ✏️ Edit Preferences
+          </Link>
+
+          <p className="data-disclaimer">
+            Commute times via OSRM · Amenity counts via OpenStreetMap ·
+            Safety & lifestyle scores are estimates
+          </p>
         </div>
 
         {/* Results pane */}
@@ -163,15 +175,18 @@ function Dashboard() {
           ) : null}
 
           {viewMode === "list" || viewMode === "map" ? (
-            scoredLocations.length === 0 ? (
+            scoredLocations.length === 0 && !loading ? (
               <div className="empty-state">
                 No neighbourhoods match these filters. Try relaxing the budget or commute limit.
               </div>
             ) : (
-              viewMode === "list" &&
-              scoredLocations.map((loc) => (
-                <LocationCard key={loc.id} location={loc} matchScore={loc.matchScore} />
-              ))
+              viewMode === "list" && (
+                loading
+                  ? [1, 2, 3].map((n) => <SkeletonCard key={n} />)
+                  : scoredLocations.map((loc) => (
+                      <LocationCard key={loc.id} location={loc} matchScore={loc.matchScore} />
+                    ))
+              )
             )
           ) : null}
 

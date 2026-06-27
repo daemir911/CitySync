@@ -38,8 +38,8 @@ form {
   font-weight: 500;
 }
 
-input,
-select {
+.form-container input,
+.form-container select {
   background: #1e293b;
   border: 1px solid #334155;
   color: #f1f5f9;
@@ -50,13 +50,13 @@ select {
   width: 100%;
 }
 
-input:focus,
-select:focus {
+.form-container input:focus,
+.form-container select:focus {
   outline: none;
   border-color: #2563eb;
 }
 
-input::placeholder {
+.form-container input::placeholder {
   color: #475569;
 }
 

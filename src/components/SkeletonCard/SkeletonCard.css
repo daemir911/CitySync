@@ -1,0 +1,52 @@
+.skeleton-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+/* shimmer animation */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+
+.sk {
+  background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+  background-size: 600px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk { animation: none; background: #334155; }
+}
+
+.skeleton-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.sk-title  { height: 20px; width: 55%; margin-bottom: 10px; }
+.sk-desc   { height: 12px; width: 90%; margin-bottom: 6px; }
+.sk-desc.short { width: 70%; }
+.sk-badge  { width: 64px; height: 64px; border-radius: 12px; flex-shrink: 0; }
+
+.sk-chips {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.sk-chip { height: 32px; width: 120px; border-radius: 20px; }
+
+.sk-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sk-bar { height: 6px; width: 100%; border-radius: 4px; }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import "./LocationCard.css";
 
 function ScoreBar({ label, value }) {
@@ -32,11 +33,22 @@ function LocationCard({ location, matchScore }) {
       ? saved.filter((id) => id !== location.id)
       : [...saved, location.id];
     localStorage.setItem("savedLocations", JSON.stringify(updated));
-    setIsSaved(updated.includes(location.id));
+    const nowSaved = updated.includes(location.id);
+    setIsSaved(nowSaved);
+    toast(nowSaved ? `Saved ${location.name}` : `Removed ${location.name}`, {
+      position: "bottom-right",
+      autoClose: 2000,
+      theme: "dark",
+    });
   };
 
-  const matchColor =
-    matchScore >= 80 ? "#22c55e" : matchScore >= 60 ? "#f59e0b" : "#ef4444";
+  // Handle numeric or "—" matchScore gracefully
+  const numericScore = typeof matchScore === "number" ? matchScore : null;
+  const matchColor = numericScore === null
+    ? "#334155"
+    : numericScore >= 80 ? "#22c55e"
+    : numericScore >= 60 ? "#f59e0b"
+    : "#ef4444";
 
   return (
     <div className="location-card">
@@ -50,7 +62,7 @@ function LocationCard({ location, matchScore }) {
           style={{ background: matchColor }}
           title="Match score based on your preferences"
         >
-          {matchScore}%
+          {numericScore !== null ? `${numericScore}%` : "—"}
           <span className="match-label">Match</span>
         </div>
       </div>
@@ -62,7 +74,7 @@ function LocationCard({ location, matchScore }) {
         </div>
         <div className="stat-chip">
           <span className="stat-icon">🚇</span>
-          <span>{location.commute} min commute</span>
+          <span>{location.commute} min commute{location.isLive ? <span className="live-tag">live</span> : null}</span>
         </div>
         <div className="stat-chip">
           <span className="stat-icon">🛡️</span>

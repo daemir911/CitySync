@@ -27,14 +27,34 @@ function winClass(a, b, higherIsBetter) {
 
 function Compare() {
   const { locations } = useLocations();
-  const [firstId, setFirstId] = useState(locations[0].id);
-  const [secondId, setSecondId] = useState(locations[1].id);
 
-  const first = useMemo(() => locations.find((l) => l.id === firstId), [firstId]);
-  const second = useMemo(() => locations.find((l) => l.id === secondId), [secondId]);
+  // Guard against empty locations (direct navigation before Dashboard hydrates)
+  if (!locations.length) {
+    return (
+      <>
+        <Navbar />
+        <div className="compare-page">
+          <h1 className="compare-title">Compare Neighbourhoods</h1>
+          <p className="compare-subtitle">Visit the Dashboard first to load neighbourhood data.</p>
+          <Link to="/dashboard" className="details-link" style={{ marginTop: 16, display: "inline-block" }}>
+            → Go to Dashboard
+          </Link>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  const [firstId, setFirstId] = useState(locations[0].id);
+  const [secondId, setSecondId] = useState(locations[1]?.id ?? locations[0].id);
+
+  const first = useMemo(() => locations.find((l) => l.id === firstId), [locations, firstId]);
+  const second = useMemo(() => locations.find((l) => l.id === secondId), [locations, secondId]);
+
+  const sameArea = firstId === secondId;
 
   const wins = useMemo(() => {
-    if (!first || !second) return { first: 0, second: 0 };
+    if (!first || !second || sameArea) return { first: 0, second: 0 };
     let f = 0, s = 0;
     METRICS.forEach(({ key, higherIsBetter }) => {
       if (first[key] === second[key]) return;
@@ -42,7 +62,7 @@ function Compare() {
       if (fWins) f++; else s++;
     });
     return { first: f, second: s };
-  }, [first, second]);
+  }, [first, second, sameArea]);
 
   return (
     <>
@@ -78,6 +98,11 @@ function Compare() {
 
         {first && second && (
           <>
+            {sameArea && (
+              <div className="same-area-warning">
+                ⚠️ You've selected the same area twice. Pick two different neighbourhoods to compare.
+              </div>
+            )}
             {/* winner bar */}
             <div className="winner-banner">
               <div className={`winner-side ${wins.first > wins.second ? "active" : ""}`}>
