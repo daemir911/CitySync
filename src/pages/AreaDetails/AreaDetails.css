@@ -239,3 +239,29 @@
   vertical-align: middle;
   text-transform: uppercase;
 }
+
+.details-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.details-map-btn {
+  background: #1e3a5f;
+  border: 1px solid #2563eb;
+  color: #60a5fa;
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.details-map-btn:hover {
+  background: #2563eb;
+  color: #fff;
+}

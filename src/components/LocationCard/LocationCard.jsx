@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import MapModal from "../MapModal/MapModal";
 import "./LocationCard.css";
 
 function ScoreBar({ label, value }) {
@@ -34,6 +35,7 @@ function buildScoreReason(location, matchScore) {
 function LocationCard({ location, matchScore }) {
   const [isSaved, setIsSaved] = useState(false);
   const [showWhy, setShowWhy] = useState(false);
+  const [showMap, setShowMap] = useState(false);
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("savedLocations") || "[]");
@@ -155,10 +157,25 @@ function LocationCard({ location, matchScore }) {
 
       <div className="card-actions">
         <Link to={`/details/${location.id}`} className="btn-outline">View Details</Link>
+        <button
+          onClick={() => setShowMap(true)}
+          className="btn-map"
+          title={location.lat ? "View on map" : "Coordinates loading…"}
+        >
+          🗺 Map
+        </button>
         <button onClick={toggleSave} className={isSaved ? "btn-saved" : "btn-save"}>
           {isSaved ? "✓ Saved" : "Save"}
         </button>
       </div>
+
+      {showMap && (
+        <MapModal
+          location={location}
+          matchScore={numericScore}
+          onClose={() => setShowMap(false)}
+        />
+      )}
     </div>
   );
 }

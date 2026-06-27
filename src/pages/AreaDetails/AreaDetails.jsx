@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import { useState } from "react";
 import {
   Chart as ChartJS,
   RadialLinearScale,
@@ -11,6 +12,7 @@ import {
 import { Radar } from "react-chartjs-2";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
+import MapModal from "../../components/MapModal/MapModal";
 import { useLocations } from "../../context/LocationsContext";
 import "./AreaDetails.css";
 
@@ -33,8 +35,8 @@ function MetricRow({ label, value, max = 10 }) {
 function AreaDetails() {
   const { id } = useParams();
   const { locations } = useLocations();
+  const [showMap, setShowMap] = useState(false);
 
-  // Support both numeric and string-prefixed dynamic IDs
   const location = locations.find(
     (item) => String(item.id) === String(id)
   );
@@ -115,12 +117,21 @@ function AreaDetails() {
             <h1 className="details-title">{location.name}</h1>
             <p className="details-city">📍 {location.city}</p>
           </div>
-          {location.rent > 0 && (
-            <div className="details-rent">
-              <span className="rent-amount">₹{location.rent.toLocaleString()}</span>
-              <span className="rent-label">/ month avg.</span>
-            </div>
-          )}
+          <div className="details-header-right">
+            {location.rent > 0 && (
+              <div className="details-rent">
+                <span className="rent-amount">₹{location.rent.toLocaleString()}</span>
+                <span className="rent-label">/ month avg.</span>
+              </div>
+            )}
+            <button
+              className="details-map-btn"
+              onClick={() => setShowMap(true)}
+              title={location.lat ? "View on map" : "Coordinates not available"}
+            >
+              🗺 View on Map
+            </button>
+          </div>
         </div>
 
         <p className="details-description">{location.description}</p>
@@ -227,6 +238,14 @@ function AreaDetails() {
           <Link to="/compare" className="cta-link">Compare with another area →</Link>
         </div>
       </div>
+
+      {showMap && (
+        <MapModal
+          location={location}
+          matchScore={null}
+          onClose={() => setShowMap(false)}
+        />
+      )}
 
       <Footer />
     </>

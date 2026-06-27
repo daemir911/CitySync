@@ -273,3 +273,18 @@
   padding-top: 10px;
   border-top: 1px solid #1e293b;
 }
+
+.btn-map {
+  padding: 8px 14px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btn-map:hover {
+  border-color: #2563eb;
+  color: #60a5fa;
+}
