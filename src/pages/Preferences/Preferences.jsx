@@ -8,9 +8,9 @@ import "./Preferences.css";
 
 const STEPS = [
   {
-    id: "location",
-    title: "Where are you moving?",
-    subtitle: "Tell us your origin and destination so we can focus the right neighbourhoods.",
+    id: "destination",
+    title: "Where are you moving to?",
+    subtitle: "Enter the city you're relocating to and we'll find real neighbourhoods there.",
     icon: "📍",
   },
   {
@@ -34,7 +34,6 @@ const STEPS = [
 ];
 
 const initialPreferences = {
-  currentCity: "",
   movingTo: "",
   workplace: "",
   budgetRange: [5000, 35000],
@@ -109,26 +108,17 @@ function Preferences() {
 
           <form onSubmit={next} className="pref-form">
 
-            {/* Step 0 — Location */}
+            {/* Step 0 — Destination only */}
             {step === 0 && (
-              <>
-                <Autocomplete
-                  label="Current City"
-                  name="currentCity"
-                  value={formData.currentCity}
-                  onChange={handleChange}
-                  placeholder="e.g. Delhi"
-                  required
-                />
-                <Autocomplete
-                  label="Moving To"
-                  name="movingTo"
-                  value={formData.movingTo}
-                  onChange={handleChange}
-                  placeholder="e.g. Bengaluru"
-                  required
-                />
-              </>
+              <Autocomplete
+                label="Moving To"
+                name="movingTo"
+                value={formData.movingTo}
+                onChange={handleChange}
+                placeholder="e.g. Hyderabad, Pune, Nagpur…"
+                hint="Enter any Indian city — we'll find real neighbourhoods there."
+                required
+              />
             )}
 
             {/* Step 1 — Workplace */}

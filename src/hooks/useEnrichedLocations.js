@@ -159,19 +159,29 @@ export function useEnrichedLocations(preferences) {
               liveData: amenityData.raw ? { ...amenityData.raw } : null,
             };
 
-            // For dynamic locations also derive lifestyle scores from amenity data
+            // For dynamic locations also derive lifestyle scores + estimated rent from amenity data
             if (loc.isDynamic) {
-              const edu   = amenityData.scores?.educationScore  ?? 7;
-              const park  = amenityData.scores?.leisureScore    ?? 6;
-              const night = amenityData.scores?.foodScore       ?? 6;
+              const edu     = amenityData.scores?.educationScore   ?? 7;
+              const park    = amenityData.scores?.leisureScore     ?? 6;
+              const night   = amenityData.scores?.foodScore        ?? 6;
+              const health  = amenityData.scores?.healthcareScore  ?? 7;
+              const transit = amenityData.scores?.transitScore     ?? 6;
               patch.schools         = edu;
               patch.parks           = park;
               patch.nightlife       = night;
-              patch.familyFriendly  = parseFloat(((edu + park + amenityData.scores?.healthcareScore) / 3).toFixed(1));
+              patch.safety          = parseFloat(((health + (amenityData.scores?.amenities ?? 7)) / 2).toFixed(1));
+              patch.transit         = transit;
+              patch.familyFriendly  = parseFloat(((edu + park + health) / 3).toFixed(1));
               patch.coupleFriendly  = parseFloat(((night + park + amenityData.scores?.amenities) / 3).toFixed(1));
-              patch.studentFriendly = parseFloat(((edu + night + amenityData.scores?.transitScore) / 3).toFixed(1));
+              patch.studentFriendly = parseFloat(((edu + night + transit) / 3).toFixed(1));
               patch.description     = buildDescription(loc.name, amenityData.raw);
               patch.highlights      = buildHighlights(amenityData.raw);
+
+              // Estimate rent from amenity density — more amenities = higher rent area
+              const amenityDensity = (amenityData.raw?.food ?? 0) + (amenityData.raw?.grocery ?? 0) + (amenityData.raw?.healthcare ?? 0);
+              const baseRent = 12000;
+              const rentFactor = Math.min(amenityDensity / 30, 2.5); // cap at 2.5x
+              patch.rent = Math.round((baseRent + baseRent * rentFactor) / 1000) * 1000;
             }
 
             patchLocation(loc.id, patch);
