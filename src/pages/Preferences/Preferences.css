@@ -141,25 +141,6 @@
   color: #475569;
 }
 
-/* budget input with ₹ prefix */
-.budget-input-wrap {
-  position: relative;
-}
-
-.currency-prefix {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #64748b;
-  font-size: 1rem;
-  pointer-events: none;
-}
-
-.budget-input-wrap input {
-  padding-left: 28px !important;
-}
-
 /* range slider */
 .range-input {
   -webkit-appearance: none;

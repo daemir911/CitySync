@@ -82,21 +82,37 @@ function Dashboard() {
           <p className="filter-copy">Adjust and see rankings update live.</p>
 
           <label>
-            Budget (₹)
+            Budget — ₹{Number(budgetFilter).toLocaleString()}
             <input
-              type="number"
+              type="range"
+              min="5000"
+              max="60000"
+              step="1000"
               value={budgetFilter}
               onChange={(e) => setBudgetFilter(e.target.value)}
+              className="filter-range"
             />
+            <div className="range-track-labels">
+              <span>₹5k</span>
+              <span>₹60k</span>
+            </div>
           </label>
 
           <label>
-            Max Commute (min)
+            Commute — {commuteFilter} min
             <input
-              type="number"
+              type="range"
+              min="10"
+              max="120"
+              step="5"
               value={commuteFilter}
               onChange={(e) => setCommuteFilter(e.target.value)}
+              className="filter-range"
             />
+            <div className="range-track-labels">
+              <span>10 min</span>
+              <span>120 min</span>
+            </div>
           </label>
 
           <label>

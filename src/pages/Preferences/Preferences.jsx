@@ -171,19 +171,20 @@ function Preferences() {
             {step === 2 && (
               <>
                 <div className="pref-field">
-                  <label>Monthly Rent Budget</label>
-                  <div className="budget-input-wrap">
-                    <span className="currency-prefix">₹</span>
-                    <input
-                      name="budget"
-                      type="number"
-                      value={formData.budget}
-                      onChange={handleChange}
-                      placeholder="35000"
-                      min="5000"
-                      max="200000"
-                      required
-                    />
+                  <label>Monthly Rent Budget — <strong>₹{Number(formData.budget).toLocaleString()}</strong></label>
+                  <input
+                    name="budget"
+                    type="range"
+                    min="5000"
+                    max="60000"
+                    step="1000"
+                    value={formData.budget}
+                    onChange={handleChange}
+                    className="range-input"
+                  />
+                  <div className="range-labels">
+                    <span>₹5,000</span>
+                    <span>₹60,000</span>
                   </div>
                   <span className="pref-hint">Monthly rent you're comfortable paying.</span>
                 </div>
