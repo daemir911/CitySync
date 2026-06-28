@@ -36,6 +36,24 @@ function isStaticCity(city) {
   return STATIC_CITIES.some((c) => city.includes(c) || c.includes(city));
 }
 
+/** Return only the static locations that match the chosen city */
+function filterStaticByCity(city) {
+  // Map user input to the city field in our dataset
+  const cityMap = {
+    "noida":     "Noida",
+    "delhi":     "Delhi",
+    "bengaluru": "Bengaluru",
+    "bangalore": "Bengaluru",
+    "mumbai":    "Mumbai",
+    "bombay":    "Mumbai",
+  };
+  const match = Object.entries(cityMap).find(([key]) => city.includes(key) || key.includes(city));
+  if (!match) return staticLocations;
+  const targetCity = match[1];
+  const filtered = staticLocations.filter((l) => l.city === targetCity);
+  return filtered.length ? filtered : staticLocations;
+}
+
 export function useEnrichedLocations(preferences) {
   const [locations, setLocations] = useState(staticLocations);
   const [loading, setLoading] = useState(false);
@@ -63,15 +81,17 @@ export function useEnrichedLocations(preferences) {
     const city = cityFromPrefs(preferences);
     const useDynamic = city && !isStaticCity(city);
 
-    // Seed with appropriate base locations
-    setLocations(useDynamic ? [] : staticLocations);
+    // For static cities, only show locations from that city
+    const baseStaticLocations = useDynamic ? [] : filterStaticByCity(city);
+
+    setLocations(useDynamic ? [] : baseStaticLocations);
 
     // Also pass the clean city name to searchNeighbourhoods
     const cityForSearch = preferences.movingTo?.split(",")[0].trim() || city;
 
     async function enrich() {
       try {
-        const total = useDynamic ? 10 : staticLocations.length;
+        const total = useDynamic ? 10 : baseStaticLocations.length;
 
         // ── Step 1: Geocode workplace ────────────────────────────────────────
         setProgress({ step: "Locating your workplace…", done: 0, total });
@@ -103,7 +123,7 @@ export function useEnrichedLocations(preferences) {
           baseLocations = found.map((l, i) => ({ ...l, id: 1000 + i }));
           setLocations(baseLocations);
         } else {
-          baseLocations = staticLocations;
+          baseLocations = baseStaticLocations;
 
           // Geocode static locations in parallel (staggered)
           setProgress({ step: "Locating neighbourhoods…", done: 0, total });
@@ -213,7 +233,7 @@ export function useEnrichedLocations(preferences) {
       } catch (err) {
         if (!abortRef.current) {
           setError(err.message || "Failed to fetch live data");
-          if (!useDynamic) setLocations(staticLocations);
+          if (!useDynamic) setLocations(baseStaticLocations);
         }
       } finally {
         if (!abortRef.current) setLoading(false);
