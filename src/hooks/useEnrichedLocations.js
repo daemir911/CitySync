@@ -211,7 +211,7 @@ export function useEnrichedLocations(preferences) {
             await sleep(i * OVERPASS_STAGGER_MS);
             if (abortRef.current) return;
 
-            const amenityData = await getAmenityProfile(loc.lat, loc.lon, 1500);
+            const amenityData = await getAmenityProfile(loc.lat, loc.lon);
             done++;
             setProgress({ step: "Fetching live amenity data…", done, total });
             if (!amenityData) return;
@@ -223,29 +223,34 @@ export function useEnrichedLocations(preferences) {
               liveData: amenityData.raw ? { ...amenityData.raw } : null,
             };
 
-            // For dynamic locations also derive lifestyle scores + estimated rent from amenity data
+            // For dynamic locations derive all scores from live data
             if (loc.isDynamic) {
               const edu     = amenityData.scores?.educationScore   ?? 7;
               const park    = amenityData.scores?.leisureScore     ?? 6;
               const night   = amenityData.scores?.foodScore        ?? 6;
               const health  = amenityData.scores?.healthcareScore  ?? 7;
-              const transit = amenityData.scores?.transitScore     ?? 6;
-              patch.schools         = edu;
+              const transit = amenityData.scores?.transit          ?? 6;
+              const walk    = amenityData.scores?.walkability      ?? 6;
+              const vital   = amenityData.scores?.vitality         ?? 6;
+
+              patch.schools         = parseFloat(Math.min(10, edu * 1.1).toFixed(1));
               patch.parks           = park;
-              patch.nightlife       = night;
-              patch.safety          = parseFloat(((health + (amenityData.scores?.amenities ?? 7)) / 2).toFixed(1));
+              patch.nightlife       = parseFloat(Math.min(10, night * 1.2).toFixed(1));
+              // Safety: health access + area vitality is a reasonable proxy
+              patch.safety          = parseFloat(Math.min(10, ((health + vital) / 2 + 1).toFixed(1)));
               patch.transit         = transit;
               patch.familyFriendly  = parseFloat(((edu + park + health) / 3).toFixed(1));
-              patch.coupleFriendly  = parseFloat(((night + park + amenityData.scores?.amenities) / 3).toFixed(1));
+              patch.coupleFriendly  = parseFloat(((night + walk + amenityData.scores?.amenities) / 3).toFixed(1));
               patch.studentFriendly = parseFloat(((edu + night + transit) / 3).toFixed(1));
-              patch.description     = buildDescription(loc.name, amenityData.raw);
-              patch.highlights      = buildHighlights(amenityData.raw);
+              patch.description     = buildDescription(loc.name, amenityData.raw, amenityData.scores);
+              patch.highlights      = buildHighlights(amenityData.raw, amenityData.scores);
 
-              // Estimate rent from amenity density — more amenities = higher rent area
-              const amenityDensity = (amenityData.raw?.food ?? 0) + (amenityData.raw?.grocery ?? 0) + (amenityData.raw?.healthcare ?? 0);
-              const baseRent = 12000;
-              const rentFactor = Math.min(amenityDensity / 30, 2.5); // cap at 2.5x
-              patch.rent = Math.round((baseRent + baseRent * rentFactor) / 1000) * 1000;
+              // Rent from amenity density — wider range for better differentiation
+              const density = (amenityData.raw?.food ?? 0) + (amenityData.raw?.grocery ?? 0)
+                            + (amenityData.raw?.retail ?? 0) + (amenityData.raw?.healthcare ?? 0);
+              const baseRent = 10000;
+              const factor = Math.min(density / 40, 3.0);
+              patch.rent = Math.round((baseRent + baseRent * factor) / 1000) * 1000;
             }
 
             patchLocation(loc.id, patch);
@@ -278,24 +283,29 @@ export function useEnrichedLocations(preferences) {
 
 // ── Helpers for dynamic location descriptions ──────────────────────────────
 
-function buildDescription(name, raw) {
+function buildDescription(name, raw, scores) {
   const parts = [];
-  if (raw?.food > 10)       parts.push("a strong food and café scene");
-  if (raw?.healthcare > 5)  parts.push("good healthcare access");
-  if (raw?.education > 5)   parts.push("schools and colleges nearby");
-  if (raw?.leisure > 5)     parts.push("parks and leisure facilities");
-  if (raw?.transport > 3)   parts.push("decent public transport links");
-  if (!parts.length)        return `A neighbourhood in ${name.split(",")[1]?.trim() || "the city"}.`;
-  return `${name.split(",")[0]} has ${parts.slice(0, 3).join(", ")}.`;
+  const neighbourhood = name.split(",")[0];
+  if ((raw?.food ?? 0) > 15)           parts.push("a vibrant food and café scene");
+  else if ((raw?.food ?? 0) > 5)       parts.push("decent dining options");
+  if ((raw?.healthcare ?? 0) > 8)      parts.push("good healthcare access");
+  if ((raw?.education ?? 0) > 8)       parts.push("schools and colleges nearby");
+  if ((raw?.leisure ?? 0) > 8)         parts.push("parks and recreational spaces");
+  if ((scores?.walkability ?? 0) > 7)  parts.push("highly walkable");
+  if ((raw?.transport ?? 0) > 5)       parts.push("strong public transport links");
+  if (!parts.length) return `A residential neighbourhood in ${name.split(",")[1]?.trim() || "the city"}.`;
+  return `${neighbourhood} features ${parts.slice(0, 3).join(", ")}.`;
 }
 
-function buildHighlights(raw) {
+function buildHighlights(raw, scores) {
   const h = [];
-  if (raw?.healthcare > 3)  h.push("Healthcare facilities nearby");
-  if (raw?.education > 3)   h.push("Schools & colleges");
-  if (raw?.grocery > 3)     h.push("Grocery & daily essentials");
-  if (raw?.food > 10)       h.push("Restaurants & cafes");
-  if (raw?.leisure > 3)     h.push("Parks & recreation");
-  if (raw?.transport > 2)   h.push("Public transit access");
+  if ((raw?.healthcare ?? 0) > 5)      h.push("Healthcare facilities nearby");
+  if ((raw?.education ?? 0) > 5)       h.push("Schools & colleges");
+  if ((raw?.grocery ?? 0) > 5)         h.push("Grocery & daily essentials");
+  if ((raw?.food ?? 0) > 15)           h.push("Restaurants & cafes");
+  if ((raw?.leisure ?? 0) > 5)         h.push("Parks & recreation");
+  if ((raw?.transport ?? 0) > 3)       h.push("Public transit access");
+  if ((scores?.walkability ?? 0) > 7)  h.push("Walkable neighbourhood");
+  if ((raw?.retail ?? 0) > 5)          h.push("Shopping & retail");
   return h.slice(0, 5);
 }
