@@ -91,6 +91,7 @@ function MapModal({ location, matchScore, onClose }) {
         {/* Map */}
         <div className="map-modal-map">
           <MapContainer
+            key={`modal-${location.id}-${location.lat}-${location.lon}`}
             center={[location.lat, location.lon]}
             zoom={14}
             style={{ height: "100%", width: "100%" }}

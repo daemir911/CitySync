@@ -1,9 +1,9 @@
 .map-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(4px);
-  z-index: 1000;
+  z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -144,4 +144,15 @@
   .map-modal-overlay { padding: 0; }
   .map-modal { border-radius: 18px 18px 0 0; max-height: 95vh; position: fixed; bottom: 0; }
   .map-chip-hint { display: none; }
+}
+
+/* Keep leaflet UI inside the modal */
+.map-modal .leaflet-pane,
+.map-modal .leaflet-top,
+.map-modal .leaflet-bottom {
+  z-index: 400;
+}
+
+.map-modal .leaflet-control {
+  z-index: 500;
 }
