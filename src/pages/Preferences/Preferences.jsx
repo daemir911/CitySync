@@ -257,9 +257,10 @@ function Preferences() {
                 <label>Household Type</label>
                 <div className="household-grid">
                   {[
-                    { value: "Student", icon: "🎓", desc: "Near colleges, budget-friendly, social" },
-                    { value: "Couple",  icon: "👫", desc: "Walkable, good food, lively nightlife" },
-                    { value: "Family",  icon: "👨‍👩‍👧", desc: "Schools, parks, safe, quiet" },
+                    { value: "Student",  icon: "🎓", desc: "Near colleges, budget-friendly, social" },
+                    { value: "Couple",   icon: "👫", desc: "Walkable, good food, lively nightlife" },
+                    { value: "Family",   icon: "👨‍👩‍👧", desc: "Schools, parks, safe, quiet" },
+                    { value: "Balanced", icon: "⚖️", desc: "No bias — scores all factors equally" },
                   ].map(({ value, icon, desc }) => (
                     <label key={value} className={`household-option ${formData.household === value ? "selected" : ""}`}>
                       <input type="radio" name="household" value={value} checked={formData.household === value} onChange={handleChange} />

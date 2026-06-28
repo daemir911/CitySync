@@ -143,6 +143,7 @@ function Dashboard() {
               <option value="Student">Student</option>
               <option value="Family">Family</option>
               <option value="Couple">Couple</option>
+              <option value="Balanced">Balanced</option>
             </select>
           </label>
 

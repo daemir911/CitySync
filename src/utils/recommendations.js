@@ -54,9 +54,15 @@ export function calculateMatchScore(location, preferences) {
   const transitScore   = (location.transit   / 10) * 8;
 
   let lifestyleScore = 0;
-  if (household === "Family")  lifestyleScore = (location.familyFriendly  / 10) * 7;
-  if (household === "Couple")  lifestyleScore = (location.coupleFriendly  / 10) * 7;
-  if (household === "Student") lifestyleScore = (location.studentFriendly / 10) * 7;
+  if (household === "Family")   lifestyleScore = (location.familyFriendly  / 10) * 7;
+  if (household === "Couple")   lifestyleScore = (location.coupleFriendly  / 10) * 7;
+  if (household === "Student")  lifestyleScore = (location.studentFriendly / 10) * 7;
+  if (household === "Balanced") {
+    // Average of all three lifestyle scores — no household bias
+    lifestyleScore = (
+      (location.familyFriendly + location.coupleFriendly + location.studentFriendly) / 30
+    ) * 7;
+  }
 
   const raw = budgetScore + commuteScore + safetyScore + amenitiesScore + transitScore + lifestyleScore;
   return Math.min(99, Math.round(raw));
