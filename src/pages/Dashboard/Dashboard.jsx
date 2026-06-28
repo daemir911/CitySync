@@ -30,8 +30,8 @@ function Dashboard() {
       maxCommute: 60,
       household: "Student",
       transport: "Car",
-      workplace: "Connaught Place, New Delhi",
-      movingTo: "",
+      workplace: "India Gate, New Delhi",
+      movingTo: "Delhi",
     };
   }, [routerLocation.state?.preferences]);
 

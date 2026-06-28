@@ -98,9 +98,8 @@ export function useEnrichedLocations(preferences) {
         const workplaceCoords = await geocode(preferences.workplace);
         if (abortRef.current) return;
         if (!workplaceCoords) {
-          throw new Error(
-            `Could not find "${preferences.workplace}" — check the spelling.`
-          );
+          // Don't block — just skip commute calculation and use static scores
+          console.warn(`Could not geocode workplace: "${preferences.workplace}"`);
         }
 
         // ── Step 2: Get base locations ───────────────────────────────────────
@@ -141,41 +140,43 @@ export function useEnrichedLocations(preferences) {
         // ── Step 3: Commute times (OSRM) ────────────────────────────────────
         setProgress({ step: "Calculating commute times…", done: 0, total });
 
-        const coordsForRouting = baseLocations
-          .filter((l) => l.lat && l.lon)
-          .map((l) => ({ id: l.id, lat: l.lat, lon: l.lon }));
+        if (workplaceCoords) {
+          const coordsForRouting = baseLocations
+            .filter((l) => l.lat && l.lon)
+            .map((l) => ({ id: l.id, lat: l.lat, lon: l.lon }));
 
-        // Build list of all destinations: workplace + any extras
-        const allDestinations = [{ lat: workplaceCoords.lat, lon: workplaceCoords.lon }];
-        const extraDests = preferences.extraDestinations || [];
-        for (const dest of extraDests) {
-          if (!dest.place?.trim()) continue;
-          const coords = await geocode(dest.place);
-          if (coords) allDestinations.push({ lat: coords.lat, lon: coords.lon });
-        }
-
-        // Get commute times to every destination, then average per location
-        const commuteResults = await Promise.all(
-          allDestinations.map((destCoords) =>
-            batchCommuteToWorkplace(
-              coordsForRouting,
-              destCoords.lat,
-              destCoords.lon,
-              preferences.transport || "Car"
-            )
-          )
-        );
-        if (abortRef.current) return;
-
-        coordsForRouting.forEach(({ id }) => {
-          const times = commuteResults
-            .map((res) => res.find((r) => r.id === id)?.commute)
-            .filter((t) => t !== null && t !== undefined);
-          if (times.length > 0) {
-            const avg = Math.round(times.reduce((a, b) => a + b, 0) / times.length);
-            patchLocation(id, { commute: avg, isLive: true });
+          // Build list of all destinations: workplace + any extras
+          const allDestinations = [{ lat: workplaceCoords.lat, lon: workplaceCoords.lon }];
+          const extraDests = preferences.extraDestinations || [];
+          for (const dest of extraDests) {
+            if (!dest.place?.trim()) continue;
+            const coords = await geocode(dest.place);
+            if (coords) allDestinations.push({ lat: coords.lat, lon: coords.lon });
           }
-        });
+
+          // Get commute times to every destination, then average per location
+          const commuteResults = await Promise.all(
+            allDestinations.map((destCoords) =>
+              batchCommuteToWorkplace(
+                coordsForRouting,
+                destCoords.lat,
+                destCoords.lon,
+                preferences.transport || "Car"
+              )
+            )
+          );
+          if (abortRef.current) return;
+
+          coordsForRouting.forEach(({ id }) => {
+            const times = commuteResults
+              .map((res) => res.find((r) => r.id === id)?.commute)
+              .filter((t) => t !== null && t !== undefined);
+            if (times.length > 0) {
+              const avg = Math.round(times.reduce((a, b) => a + b, 0) / times.length);
+              patchLocation(id, { commute: avg, isLive: true });
+            }
+          });
+        }
 
         // ── Step 4: Amenity profiles (Overpass) ──────────────────────────────
         setProgress({ step: "Fetching live amenity data…", done: 0, total });
