@@ -1,6 +1,6 @@
 /**
  * Vercel serverless proxy for Overpass API.
- * Adds User-Agent server-side. Accepts JSON body { data: <query> }.
+ * Accepts POST with JSON body { data: <query> }.
  */
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -25,7 +25,6 @@ export default async function handler(req, res) {
     });
 
     const data = await upstream.json();
-
     res.setHeader("Content-Type", "application/json");
     res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
     res.status(upstream.status).json(data);
