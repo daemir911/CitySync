@@ -19,6 +19,7 @@ import { geocode, searchNeighbourhoods } from "../services/geocoding";
 import { batchCommuteToWorkplace } from "../services/routing";
 import { getAmenityProfile } from "../services/overpass";
 import { locations as staticLocations } from "../data/locations";
+import { useLocations } from "../context/LocationsContext";
 
 const STATIC_CITIES = ["noida", "delhi", "bengaluru", "bangalore", "mumbai", "bombay"];
 const GEOCODE_STAGGER_MS = 350;
@@ -61,18 +62,37 @@ export function useEnrichedLocations(preferences) {
   const [error, setError] = useState(null);
   const abortRef = useRef(false);
 
+  // Pull cache from context
+  const { locations: ctxLocations, setLocations: setCtxLocations, lastEnrichKey, setLastEnrichKey } = useLocations();
+
+  // Build a stable key from the preferences that affect enrichment
+  const enrichKey = [
+    preferences?.workplace || "",
+    preferences?.transport || "",
+    preferences?.movingTo  || "",
+    JSON.stringify(preferences?.extraDestinations || []),
+  ].join("|");
+
   const patchLocation = useCallback((idOrFn, patch) => {
     if (typeof idOrFn === "function") {
       setLocations(idOrFn);
+      // Also sync to context
+      setCtxLocations(idOrFn);
     } else {
-      setLocations((prev) =>
-        prev.map((l) => (l.id === idOrFn ? { ...l, ...patch } : l))
-      );
+      const updater = (prev) => prev.map((l) => (l.id === idOrFn ? { ...l, ...patch } : l));
+      setLocations(updater);
+      setCtxLocations(updater);
     }
-  }, []);
+  }, [setCtxLocations]);
 
   useEffect(() => {
     if (!preferences?.workplace) return;
+
+    // If same preferences were already enriched, reuse context result
+    if (lastEnrichKey === enrichKey && ctxLocations.length > 0) {
+      setLocations(ctxLocations);
+      return;
+    }
 
     abortRef.current = false;
     setLoading(true);
@@ -84,7 +104,9 @@ export function useEnrichedLocations(preferences) {
     // For static cities, only show locations from that city
     const baseStaticLocations = useDynamic ? [] : filterStaticByCity(city);
 
+    // Seed with appropriate base locations
     setLocations(useDynamic ? [] : baseStaticLocations);
+    setCtxLocations(useDynamic ? [] : baseStaticLocations);
 
     // Also pass the clean city name to searchNeighbourhoods
     const cityForSearch = preferences.movingTo?.split(",")[0].trim() || city;
@@ -121,6 +143,7 @@ export function useEnrichedLocations(preferences) {
           // Assign stable numeric IDs
           baseLocations = found.map((l, i) => ({ ...l, id: 1000 + i }));
           setLocations(baseLocations);
+          setCtxLocations(baseLocations);
         } else {
           baseLocations = baseStaticLocations;
 
@@ -231,6 +254,8 @@ export function useEnrichedLocations(preferences) {
 
         if (abortRef.current) return;
         setProgress({ step: "Done", done: total, total });
+        // Mark this enrichment as complete so back-navigation reuses it
+        setLastEnrichKey(enrichKey);
       } catch (err) {
         if (!abortRef.current) {
           setError(err.message || "Failed to fetch live data");
@@ -244,8 +269,9 @@ export function useEnrichedLocations(preferences) {
     enrich();
     return () => { abortRef.current = true; };
 
+  // enrichKey is a stable string derived from all relevant preference fields
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preferences?.workplace, preferences?.transport, preferences?.movingTo, preferences?.extraDestinations]);
+  }, [enrichKey]);
 
   return { locations, loading, progress, error };
 }

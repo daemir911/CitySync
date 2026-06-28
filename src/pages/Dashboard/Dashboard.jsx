@@ -46,11 +46,11 @@ function Dashboard() {
   const [householdFilter, setHouseholdFilter] = useState(preferences.household || "Student");
   const [viewMode, setViewMode] = useState("list"); // "list" | "map"
 
-  // Fetch live data (geocoding + commute + amenities)
+  // Fetch live data — hook syncs to LocationsContext automatically
   const { locations, loading, progress, error } = useEnrichedLocations(preferences);
   const { setLocations: setGlobalLocations } = useLocations();
 
-  // Push enriched locations into context so other pages can read them
+  // Keep context in sync (for AreaDetails, Compare, Saved)
   useEffect(() => {
     if (!loading && locations.length) {
       setGlobalLocations(locations);
