@@ -20,7 +20,7 @@
     linear-gradient(90deg, var(--border) 1px, transparent 1px);
   background-size: 40px 40px;
   mask-image: radial-gradient(ellipse 80% 80% at 50% 0%, black 40%, transparent 100%);
-  opacity: 0.35;
+  opacity: 0.3;
   pointer-events: none;
 }
 

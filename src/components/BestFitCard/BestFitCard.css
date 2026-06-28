@@ -16,7 +16,6 @@
   height: 2px;
   background: linear-gradient(90deg, var(--accent), var(--green));
 }
-
 .bestfit-ribbon {
   display: inline-flex;
   align-items: center;

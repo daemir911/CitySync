@@ -17,10 +17,10 @@
   --text-secondary: #8b949e;
   --text-muted:     #484f58;
 
-  /* Accent — saffron/amber for India warmth */
-  --accent:      #f0883e;
-  --accent-dim:  rgba(240, 136, 62, 0.12);
-  --accent-border: rgba(240, 136, 62, 0.35);
+  /* Accent — teal, map/navigation feel */
+  --accent:      #0d9488;
+  --accent-dim:  rgba(13, 148, 136, 0.12);
+  --accent-border: rgba(13, 148, 136, 0.35);
 
   /* Blue — interactive only */
   --blue:        #2f81f7;
@@ -28,8 +28,8 @@
   --blue-dark:   #1f6feb;
 
   /* Semantic */
-  --green:  #3fb950;
-  --amber:  #d29922;
+  --green:  #10b981;
+  --amber:  #f59e0b;
   --red:    #f85149;
 
   /* Radius */
