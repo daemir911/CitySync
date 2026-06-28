@@ -1,52 +1,51 @@
 .skeleton-card {
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-radius: 14px;
-  padding: 24px;
-  margin-bottom: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 22px;
+  margin-bottom: 14px;
 }
 
-/* shimmer animation */
 @keyframes shimmer {
   0%   { background-position: -600px 0; }
   100% { background-position: 600px 0; }
 }
 
 .sk {
-  background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-raised) 50%, var(--bg-card) 75%);
   background-size: 600px 100%;
   animation: shimmer 1.4s infinite linear;
-  border-radius: 6px;
+  border-radius: 5px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sk { animation: none; background: #334155; }
+  .sk { animation: none; background: var(--bg-raised); }
 }
 
 .skeleton-top {
   display: flex;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
-.sk-title  { height: 20px; width: 55%; margin-bottom: 10px; }
-.sk-desc   { height: 12px; width: 90%; margin-bottom: 6px; }
-.sk-desc.short { width: 70%; }
-.sk-badge  { width: 64px; height: 64px; border-radius: 12px; flex-shrink: 0; }
+.sk-title  { height: 18px; width: 50%; margin-bottom: 8px; }
+.sk-desc   { height: 11px; width: 88%; margin-bottom: 5px; }
+.sk-desc.short { width: 65%; }
+.sk-badge  { width: 58px; height: 58px; border-radius: var(--r-md); flex-shrink: 0; }
 
 .sk-chips {
   display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 8px;
+  margin-bottom: 14px;
 }
 
-.sk-chip { height: 32px; width: 120px; border-radius: 20px; }
+.sk-chip { height: 30px; width: 110px; border-radius: 20px; }
 
 .sk-bars {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
 }
 
-.sk-bar { height: 6px; width: 100%; border-radius: 4px; }
+.sk-bar { height: 4px; width: 100%; border-radius: 4px; }

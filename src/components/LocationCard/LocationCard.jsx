@@ -6,7 +6,7 @@ import FindProperties from "../FindProperties/FindProperties";
 import "./LocationCard.css";
 
 function ScoreBar({ label, value }) {
-  const color = value >= 8 ? "#22c55e" : value >= 6 ? "#f59e0b" : "#ef4444";
+  const color = value >= 8 ? "var(--green)" : value >= 6 ? "var(--amber)" : "var(--red)";
   return (
     <div className="score-bar-row">
       <span className="score-bar-label">{label}</span>

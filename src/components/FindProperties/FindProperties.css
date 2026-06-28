@@ -1,57 +1,54 @@
 .find-props {
-  background: #0f172a;
-  border: 1px solid #334155;
-  border-radius: 12px;
-  padding: 18px 20px;
-  margin-top: 16px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 16px 18px;
+  margin-top: 14px;
 }
 
 .find-props-header {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  margin-bottom: 14px;
+  gap: 2px;
+  margin-bottom: 12px;
 }
 
 .find-props-title {
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .find-props-sub {
-  font-size: 0.75rem;
-  color: #475569;
+  font-size: 0.72rem;
+  color: var(--text-muted);
 }
 
 .find-props-grid {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
 }
 
 .find-props-btn {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-radius: 10px;
-  padding: 11px 14px;
+  gap: 11px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-sm);
+  padding: 10px 13px;
   text-decoration: none;
   transition: border-color 0.15s, background 0.15s;
   cursor: pointer;
 }
 
 .find-props-btn:hover {
-  border-color: var(--platform-color, #2563eb);
-  background: #1a2744;
+  border-color: var(--platform-color, var(--accent));
+  background: var(--bg-raised);
 }
 
-.fp-icon {
-  font-size: 1.2rem;
-  flex-shrink: 0;
-}
+.fp-icon { font-size: 1.1rem; flex-shrink: 0; }
 
 .fp-text {
   flex: 1;
@@ -61,30 +58,30 @@
 }
 
 .fp-name {
-  font-size: 0.85rem;
+  font-size: 0.83rem;
   font-weight: 600;
-  color: #f1f5f9;
+  color: var(--text-primary);
 }
 
 .fp-area {
-  font-size: 0.72rem;
-  color: #64748b;
+  font-size: 0.7rem;
+  color: var(--text-muted);
 }
 
 .fp-arrow {
-  color: #475569;
-  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-size: 0.88rem;
   flex-shrink: 0;
   transition: color 0.15s;
 }
 
 .find-props-btn:hover .fp-arrow {
-  color: var(--platform-color, #2563eb);
+  color: var(--platform-color, var(--accent));
 }
 
 .find-props-disclaimer {
-  font-size: 0.7rem;
-  color: #334155;
-  margin-top: 12px;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 10px;
   line-height: 1.4;
 }
