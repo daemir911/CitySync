@@ -109,15 +109,21 @@ function Autocomplete({ name, value, onChange, placeholder, required, hint, labe
 
   const select = (suggestion) => {
     setQuery(suggestion.label);
-    setSuggestions([]);
+    setSuggestions([]);  // clear so dropdown can't reopen until user types again
     setOpen(false);
     setActiveIdx(-1);
     onChange({ target: { name, value: suggestion.label } });
   };
 
   const handleInput = (e) => {
-    setQuery(e.target.value);
-    onChange({ target: { name, value: e.target.value } });
+    const val = e.target.value;
+    setQuery(val);
+    onChange({ target: { name, value: val } });
+    // If user clears or changes the input, allow suggestions to reappear
+    if (val.length < 2) {
+      setSuggestions([]);
+      setOpen(false);
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -145,7 +151,6 @@ function Autocomplete({ name, value, onChange, placeholder, required, hint, labe
           name={name}
           value={query}
           onChange={handleInput}
-          onFocus={() => suggestions.length > 0 && setOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           required={required}
